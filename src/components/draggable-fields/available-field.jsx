@@ -1,7 +1,7 @@
 import React from "react";
 import { useDrag } from "react-dnd";
 
-const DraggableField = ({ field }) => {
+const AvailableField = ({ field }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "FIELD",
     item: { ...field },
@@ -28,4 +28,4 @@ const DraggableField = ({ field }) => {
   );
 };
 
-export default DraggableField;
+export default AvailableField;

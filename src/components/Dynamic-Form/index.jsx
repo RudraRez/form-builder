@@ -5,7 +5,13 @@ import CheckBox from "./fields/check-box";
 import Dropdown from "./fields/dropdown";
 import Radio from "./fields/radio";
 
-const DynamicForm = ({ field, control, handleDelete, setFields }) => {
+const DynamicForm = ({
+  field,
+  control,
+  setFields,
+  onFieldSelect,
+  previewMode,
+}) => {
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center">
@@ -13,8 +19,9 @@ const DynamicForm = ({ field, control, handleDelete, setFields }) => {
           <FieldSet
             field={field}
             control={control}
-            handleDelete={handleDelete}
             setFields={setFields}
+            onFieldSelect={onFieldSelect}
+            previewMode={previewMode}
           />
         ) : field.type === "checkbox" ? (
           <CheckBox field={field} control={control} />

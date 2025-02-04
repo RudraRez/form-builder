@@ -1,24 +1,19 @@
-import React, { useState } from "react";
-import { useDrag, useDrop } from "react-dnd";
+import React from "react";
+import { useDrop } from "react-dnd";
 import DynamicForm from "../Dynamic-Form";
+import bin from "../../assets/svg/bin.svg";
+import left from "../../assets/svg/left.svg";
+import right from "../../assets/svg/right.svg";
+import editPencil from "../../assets/svg/edit-pencil.svg";
+import DragField from "../draggable-fields/drag-filed";
 
-const FormCanvas = ({
-  fields,
-  setFields,
-  control,
-  onFieldSelect,
-  isPreview,
-}) => {
+const FormCanvas = ({ fields, setFields, control, onFieldSelect }) => {
   const [, drop] = useDrop({
     accept: "FIELD",
     drop: (item, monitor) => {
-      // Check if the drop was already handled by a nested drop target (e.g., FieldSet)
-      if (monitor.didDrop()) {
-        return;
-      }
+      if (monitor.didDrop()) return;
 
       const isFieldAlreadyAdded = fields.find((f) => f.id === item.id);
-
       if (!isFieldAlreadyAdded) {
         const timestamp = Date.now();
         const newField = {
@@ -32,87 +27,18 @@ const FormCanvas = ({
   });
 
   const handleDelete = (fieldId) => {
-    setFields((prevFields) =>
-      prevFields.filter((field) => field.id !== fieldId)
-    );
+    if (window.confirm("Are you sure you want to delete this item?")) {
+      setFields((prevFields) =>
+        prevFields.filter((field) => field.id !== fieldId)
+      );
+    }
   };
 
-  const Field = ({ field, index }) => {
-    const [isHovered, setIsHovered] = useState(false);
-
-    const [, drop] = useDrop({
-      accept: "CANVAS",
-      hover: (draggedItem) => {
-        if (draggedItem.index !== index) {
-          const updatedFields = [...fields];
-          const [draggedField] = updatedFields.splice(draggedItem.index, 1);
-          updatedFields.splice(index, 0, draggedField);
-          setFields(updatedFields);
-          draggedItem.index = index;
-        }
-      },
-    });
-
-    const [{ isDragging }, drag] = useDrag({
-      type: "CANVAS",
-      item: { id: field.id, index },
-      collect: (monitor) => ({
-        isDragging: monitor.isDragging(),
-      }),
-    });
-
-    return (
-      <div
-        ref={(node) => drag(drop(node))}
-        className={`card p-3 mb-3 position-relative ${
-          isDragging ? "border-secondary bg-light" : "border-primary"
-        }`}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        style={{
-          opacity: isDragging ? 0.7 : 1,
-          transition: "opacity 0.2s ease",
-        }}
-      >
-        {isHovered && (
-          <div
-            className="hover-overlay d-flex flex-column justify-content-center align-items-center"
-            onClick={() => onFieldSelect(field)}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: "rgba(0, 0, 0, 0.7)",
-              color: "#fff",
-              zIndex: 10,
-              borderRadius: "4px",
-              textAlign: "center",
-              padding: "10px",
-              cursor: "grab",
-            }}
-          >
-            <p style={{ margin: "0 0 10px", fontSize: "14px" }}>
-              Click to edit or drag to move
-            </p>
-            <button
-              className="btn btn-danger btn-sm"
-              onClick={() => handleDelete(field.id)}
-              style={{ marginTop: "10px" }}
-            >
-              Delete
-            </button>
-          </div>
-        )}
-        <DynamicForm
-          field={field}
-          control={control}
-          handleDelete={handleDelete}
-          setFields={setFields}
-        />
-      </div>
-    );
+  const moveField = (dragIndex, hoverIndex) => {
+    const updatedFields = [...fields];
+    const draggedField = updatedFields.splice(dragIndex, 1)[0];
+    updatedFields.splice(hoverIndex, 0, draggedField);
+    setFields(updatedFields);
   };
 
   return (
@@ -131,7 +57,59 @@ const FormCanvas = ({
         <p>Drag fields here to build your form</p>
       ) : (
         fields.map((field, index) => (
-          <Field key={field.id} field={field} index={index} />
+          <DragField
+            key={field.id}
+            index={index}
+            id={field.id}
+            moveField={moveField}
+            type="CANVAS"
+          >
+            <div className="card p-3 mb-3">
+              <div
+                className="position-absolute d-flex justify-content-end p-2"
+                style={{
+                  top: 0,
+                  right: 0,
+                  backgroundColor: "rgba(0, 0, 0, 0.2)",
+                  borderRadius: "4px",
+                  zIndex: 10,
+                }}
+              >
+                <img
+                  src={left}
+                  alt="Move Left"
+                  className="mx-1"
+                  style={{ width: "20px", height: "20px", cursor: "pointer" }}
+                />
+                <img
+                  src={right}
+                  alt="Move Right"
+                  className="mx-1"
+                  style={{ width: "20px", height: "20px", cursor: "pointer" }}
+                />
+                <img
+                  src={bin}
+                  alt="Delete"
+                  className="mx-1"
+                  style={{ width: "20px", height: "20px", cursor: "pointer" }}
+                  onClick={() => handleDelete(field.id)}
+                />
+                <img
+                  src={editPencil}
+                  alt="Edit"
+                  className="mx-1"
+                  style={{ width: "20px", height: "20px", cursor: "pointer" }}
+                  onClick={() => onFieldSelect(field)}
+                />
+              </div>
+              <DynamicForm
+                field={field}
+                control={control}
+                setFields={setFields}
+                onFieldSelect={onFieldSelect}
+              />
+            </div>
+          </DragField>
         ))
       )}
     </div>

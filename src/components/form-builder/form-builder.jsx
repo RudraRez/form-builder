@@ -6,7 +6,8 @@ import FormCanvas from "./form-canvas";
 import FieldEditor from "./field-editor";
 import "./form-builder.css";
 import { useForm } from "react-hook-form";
-import DraggableField from "../draggable-fields/draggable-field";
+import DraggableField from "../draggable-fields/available-field";
+import PreviewModeModel from "./preview-mode-model";
 
 const FormBuilder = () => {
   const {
@@ -18,21 +19,16 @@ const FormBuilder = () => {
   const [fields, setFields] = useState([]); // for form fields
   const [selectedField, setSelectedField] = useState(null); // for editing
   const [isPreview, setIsPreview] = useState(false); // Toggle Preview mode
+  const [fieldJson, setFieldJson] = useState(null);
 
   const handleFieldSelect = (field) => {
     setSelectedField(field);
     console.log(field, "-----");
   };
 
-  const onSubmit = () => {
-    console.log(fields, " ----");
-  };
-
   const formSubmit = (data) => {
     console.log(data);
   };
-
-  const togglePreview = () => setIsPreview((prev) => !prev);
 
   const handleFieldUpdate = (updatedField) => {
     setFields((prevFields) =>
@@ -42,6 +38,28 @@ const FormBuilder = () => {
     );
   };
 
+  const generateJSON = () => {
+    const formJSON = {
+      version: "1.0",
+      form: {
+        key: "root",
+        type: "container",
+        children: fields,
+      },
+    };
+    setFieldJson(formJSON);
+    console.log(JSON.stringify(formJSON, null, 2));
+  };
+
+  const togglePreview = () => {
+    generateJSON();
+    setIsPreview(true);
+  };
+
+  const closePreview = () => {
+    setIsPreview(false); // Close the modal
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
       <h1 className="text-center">FORM BUILDER</h1>
@@ -49,6 +67,15 @@ const FormBuilder = () => {
         <button className="btn btn-secondary my-3" onClick={togglePreview}>
           {isPreview ? "Edit Mode" : "Preview Mode"}
         </button>
+
+        <button onClick={generateJSON} className="btn btn-primary my-3 mx-3">
+          Generate JSON
+        </button>
+        <PreviewModeModel
+          show={isPreview}
+          onClose={closePreview}
+          fieldJson={fieldJson}
+        />
         <div className="row">
           {/* Left Panel - Fields */}
           <div className="col-md-3">
@@ -66,27 +93,13 @@ const FormBuilder = () => {
 
           {/* Middle Panel - Form Canvas */}
           <div className="col-md-6">
-            <form
-              className="form-canvas card p-3 shadow-sm"
-              onSubmit={handleSubmit(formSubmit)}
-            >
-              <FormCanvas
-                fields={fields}
-                setFields={setFields}
-                onFieldSelect={handleFieldSelect}
-                control={control}
-                isPreview={isPreview}
-              />
-              <div className="text-center mt-4">
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={!isValid}
-                >
-                  Submit Form
-                </button>
-              </div>
-            </form>
+            <FormCanvas
+              fields={fields}
+              setFields={setFields}
+              onFieldSelect={handleFieldSelect}
+              control={control}
+              isPreview={isPreview}
+            />
           </div>
 
           {/* Right Panel - Field Editor */}
@@ -104,8 +117,6 @@ const FormBuilder = () => {
           </div>
         </div>
       </div>
-
-      <button onClick={onSubmit}>BB</button>
     </DndProvider>
   );
 };

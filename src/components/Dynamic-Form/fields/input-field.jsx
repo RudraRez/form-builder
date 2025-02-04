@@ -2,7 +2,7 @@ import React from "react";
 import { Form } from "react-bootstrap";
 import { Controller } from "react-hook-form";
 
-function InputField({ field, control, type }) {
+function InputField({ field, control }) {
   return (
     <div className="d-flex flex-column w-100">
       <Form.Label>
