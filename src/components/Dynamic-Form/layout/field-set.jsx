@@ -3,8 +3,6 @@ import { useDrop } from "react-dnd";
 import DynamicForm from "..";
 import DragField from "../../draggable-fields/drag-filed";
 import bin from "../../../assets/svg/bin.svg";
-import left from "../../../assets/svg/left.svg";
-import right from "../../../assets/svg/right.svg";
 import editPencil from "../../../assets/svg/edit-pencil.svg";
 
 function FieldSet({ field, control, setFields, onFieldSelect, previewMode }) {
@@ -99,26 +97,6 @@ function FieldSet({ field, control, setFields, onFieldSelect, previewMode }) {
                       zIndex: 10,
                     }}
                   >
-                    <img
-                      src={left}
-                      alt="Move Left"
-                      className="mx-1"
-                      style={{
-                        width: "20px",
-                        height: "20px",
-                        cursor: "pointer",
-                      }}
-                    />
-                    <img
-                      src={right}
-                      alt="Move Right"
-                      className="mx-1"
-                      style={{
-                        width: "20px",
-                        height: "20px",
-                        cursor: "pointer",
-                      }}
-                    />
                     <img
                       src={bin}
                       alt="Delete"

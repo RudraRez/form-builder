@@ -1,9 +1,9 @@
 import React from "react";
 import { Modal, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
-import DynamicForm from "../Dynamic-Form";
+import DynamicForm from "../../Dynamic-Form";
 
-function PreviewModeModel({ show, onClose, fieldJson }) {
+function PreviewModal({ show, onClose, formJson }) {
   const {
     control,
     formState: { isValid },
@@ -20,9 +20,9 @@ function PreviewModeModel({ show, onClose, fieldJson }) {
         <Modal.Title>Preview Mode</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {fieldJson && fieldJson.form.children.length > 0 ? (
+        {formJson && formJson.form.children.length > 0 ? (
           <form onSubmit={handleSubmit(formSubmit)}>
-            {fieldJson.form.children.map((field) => (
+            {formJson.form.children.map((field) => (
               <DynamicForm
                 key={field.id}
                 field={field}
@@ -53,4 +53,4 @@ function PreviewModeModel({ show, onClose, fieldJson }) {
   );
 }
 
-export default PreviewModeModel;
+export default PreviewModal;

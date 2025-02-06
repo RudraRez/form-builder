@@ -24,7 +24,7 @@ const DragField = ({ id, index, moveField, type, children }) => {
       if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) return;
 
       moveField(dragIndex, hoverIndex);
-      item.index = hoverIndex;
+      item.index = hoverIndex; // Ensure index is updated after movement
     },
   });
 

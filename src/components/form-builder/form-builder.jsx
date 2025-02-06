@@ -1,90 +1,116 @@
 import React, { useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { fieldComponents, fieldList } from "../../data/fieldlist";
+import { fieldComponents, fieldList } from "../../data/fieldList";
 import FormCanvas from "./form-canvas";
 import FieldEditor from "./field-editor";
 import "./form-builder.css";
 import { useForm } from "react-hook-form";
 import DraggableField from "../draggable-fields/available-field";
-import PreviewModeModel from "./preview-mode-model";
+import PreviewModal from "./modal/preview-modal";
+import JsonModal from "./modal/json-modal";
 
 const FormBuilder = () => {
-  const {
-    handleSubmit,
-    control,
-    formState: { isValid },
-  } = useForm();
+  const { control } = useForm();
 
-  const [fields, setFields] = useState([]); // for form fields
-  const [selectedField, setSelectedField] = useState(null); // for editing
-  const [isPreview, setIsPreview] = useState(false); // Toggle Preview mode
-  const [fieldJson, setFieldJson] = useState(null);
+  const [formFields, setFormFields] = useState([]); // Form fields main childrens json
+  const [activeField, setActiveField] = useState(null); // Field being edited
+  const [isPreviewMode, setIsPreviewMode] = useState(false); // for modal preview
+  const [generatedJson, setGeneratedJson] = useState(null);
+  const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
 
-  const handleFieldSelect = (field) => {
-    setSelectedField(field);
-    console.log(field, "-----");
+  // Handle field selection
+  const handleFieldSelection = (field) => {
+    setActiveField(field);
   };
 
-  const formSubmit = (data) => {
-    console.log(data);
+  // Update field in the form
+  const updateField = (updatedField) => {
+    const updateNestedFields = (fields) => {
+      return fields.map((field) => {
+        if (field.id === updatedField.id) {
+          return updatedField;
+        }
+
+        if (field.type === "field-set") {
+          return {
+            ...field,
+            fields: updateNestedFields(field.fields),
+          };
+        }
+
+        if (field.type === "columns") {
+          return {
+            ...field,
+            fields: field.fields.map((column) => ({
+              ...column,
+              fields: updateNestedFields(column.fields), // Fix: Update fields inside each column
+            })),
+          };
+        }
+
+        return field;
+      });
+    };
+
+    setFormFields((prevFields) => updateNestedFields(prevFields));
   };
 
-  const handleFieldUpdate = (updatedField) => {
-    setFields((prevFields) =>
-      prevFields.map((field) =>
-        field.id === updatedField.id ? updatedField : field
-      )
-    );
-  };
-
-  const generateJSON = () => {
-    const formJSON = {
+  // Create JSON from form fields
+  const createFormJson = () => {
+    const formJson = {
       version: "1.0",
       form: {
         key: "root",
         type: "container",
-        children: fields,
+        children: formFields,
       },
     };
-    setFieldJson(formJSON);
-    console.log(JSON.stringify(formJSON, null, 2));
+    setGeneratedJson(formJson);
   };
 
-  const togglePreview = () => {
-    generateJSON();
-    setIsPreview(true);
+  const openJsonModal = () => {
+    createFormJson();
+    setIsJsonModalOpen(!isJsonModalOpen);
   };
 
-  const closePreview = () => {
-    setIsPreview(false); // Close the modal
+  const togglePreviewMode = () => {
+    createFormJson();
+    setIsPreviewMode(!isPreviewMode);
   };
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <h1 className="text-center">FORM BUILDER</h1>
+      <h1 className="text-center">Form Builder</h1>
       <div className="my-4">
-        <button className="btn btn-secondary my-3" onClick={togglePreview}>
-          {isPreview ? "Edit Mode" : "Preview Mode"}
+        <button className="btn btn-secondary my-3" onClick={togglePreviewMode}>
+          Preview Mode
         </button>
 
-        <button onClick={generateJSON} className="btn btn-primary my-3 mx-3">
+        <button onClick={openJsonModal} className="btn btn-primary my-3 mx-3">
           Generate JSON
         </button>
-        <PreviewModeModel
-          show={isPreview}
-          onClose={closePreview}
-          fieldJson={fieldJson}
+
+        <PreviewModal
+          show={isPreviewMode}
+          onClose={() => setIsPreviewMode(false)}
+          formJson={generatedJson}
         />
+        <JsonModal
+          show={isJsonModalOpen}
+          onClose={() => setIsJsonModalOpen(false)}
+          formJson={generatedJson}
+        />
+
         <div className="row">
-          {/* Left Panel - Fields */}
+          {/* Left Panel - Available Fields */}
           <div className="col-md-3">
             <div className="available-fields card p-3 shadow-sm">
-              <h5 className="card-title mb-3">Fields</h5>
+              <h5 className="card-title mb-3">Available Fields</h5>
               {fieldList.map((field) => (
                 <DraggableField key={field.id} field={field} />
               ))}
-              <h5 className="card-title my-3">Field - Component</h5>
+              <h5 className="card-title my-3">Layout</h5>
               {fieldComponents.map((field) => (
                 <DraggableField key={field.id} field={field} />
               ))}
@@ -94,21 +120,18 @@ const FormBuilder = () => {
           {/* Middle Panel - Form Canvas */}
           <div className="col-md-6">
             <FormCanvas
-              fields={fields}
-              setFields={setFields}
-              onFieldSelect={handleFieldSelect}
+              fields={formFields}
+              setFields={setFormFields}
+              onFieldSelect={handleFieldSelection}
               control={control}
-              isPreview={isPreview}
+              isPreview={isPreviewMode}
             />
           </div>
 
           {/* Right Panel - Field Editor */}
           <div className="col-md-3">
-            {selectedField ? (
-              <FieldEditor
-                field={selectedField}
-                onFieldUpdate={handleFieldUpdate}
-              />
+            {activeField ? (
+              <FieldEditor field={activeField} onFieldUpdate={updateField} />
             ) : (
               <div className="card p-3 shadow-sm">
                 <h5 className="text-center">Select a Field to Edit</h5>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { dropDownOptions } from "../../data/fieldlist";
+import { dropDownOptions } from "../../data/fieldList";
 
 const FieldEditor = ({ field, onFieldUpdate }) => {
   const [editedField, setEditedField] = useState(field);

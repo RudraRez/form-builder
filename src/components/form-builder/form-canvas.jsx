@@ -2,8 +2,6 @@ import React from "react";
 import { useDrop } from "react-dnd";
 import DynamicForm from "../Dynamic-Form";
 import bin from "../../assets/svg/bin.svg";
-import left from "../../assets/svg/left.svg";
-import right from "../../assets/svg/right.svg";
 import editPencil from "../../assets/svg/edit-pencil.svg";
 import DragField from "../draggable-fields/drag-filed";
 
@@ -64,50 +62,44 @@ const FormCanvas = ({ fields, setFields, control, onFieldSelect }) => {
             moveField={moveField}
             type="CANVAS"
           >
-            <div className="card p-3 mb-3">
-              <div
-                className="position-absolute d-flex justify-content-end p-2"
-                style={{
-                  top: 0,
-                  right: 0,
-                  backgroundColor: "rgba(0, 0, 0, 0.2)",
-                  borderRadius: "4px",
-                  zIndex: 10,
-                }}
-              >
-                <img
-                  src={left}
-                  alt="Move Left"
-                  className="mx-1"
-                  style={{ width: "20px", height: "20px", cursor: "pointer" }}
-                />
-                <img
-                  src={right}
-                  alt="Move Right"
-                  className="mx-1"
-                  style={{ width: "20px", height: "20px", cursor: "pointer" }}
-                />
-                <img
-                  src={bin}
-                  alt="Delete"
-                  className="mx-1"
-                  style={{ width: "20px", height: "20px", cursor: "pointer" }}
-                  onClick={() => handleDelete(field.id)}
-                />
-                <img
-                  src={editPencil}
-                  alt="Edit"
-                  className="mx-1"
-                  style={{ width: "20px", height: "20px", cursor: "pointer" }}
-                  onClick={() => onFieldSelect(field)}
+            <div
+              className={`nested-fields card row p-2 mb-3 ${
+                field.type == "columns" ? "pt-5 " : ""
+              }`}
+            >
+              <div className="col">
+                <div
+                  className="position-absolute d-flex justify-content-end p-2"
+                  style={{
+                    top: 0,
+                    right: 0,
+                    backgroundColor: "rgba(0, 0, 0, 0.2)",
+                    borderRadius: "4px",
+                    zIndex: 10,
+                  }}
+                >
+                  <img
+                    src={bin}
+                    alt="Delete"
+                    className="mx-1"
+                    style={{ width: "20px", height: "20px", cursor: "pointer" }}
+                    onClick={() => handleDelete(field.id)}
+                  />
+                  <img
+                    src={editPencil}
+                    alt="Edit"
+                    className="mx-1"
+                    style={{ width: "20px", height: "20px", cursor: "pointer" }}
+                    onClick={() => onFieldSelect(field)}
+                  />
+                </div>
+                <DynamicForm
+                  field={field}
+                  control={control}
+                  setFields={setFields}
+                  onFieldSelect={onFieldSelect}
                 />
               </div>
-              <DynamicForm
-                field={field}
-                control={control}
-                setFields={setFields}
-                onFieldSelect={onFieldSelect}
-              />
             </div>
           </DragField>
         ))

@@ -1,9 +1,11 @@
 import React from "react";
-import FieldSet from "./fields/field-set";
 import InputField from "./fields/input-field";
 import CheckBox from "./fields/check-box";
 import Dropdown from "./fields/dropdown";
 import Radio from "./fields/radio";
+// import Section from "./layout/section";
+import Columns from "./layout/columns";
+import FieldSet from "./layout/field-set";
 
 const DynamicForm = ({
   field,
@@ -17,6 +19,14 @@ const DynamicForm = ({
       <div className="d-flex justify-content-between align-items-center">
         {field.type === "field-set" ? (
           <FieldSet
+            field={field}
+            control={control}
+            setFields={setFields}
+            onFieldSelect={onFieldSelect}
+            previewMode={previewMode}
+          />
+        ) : field.type === "columns" ? (
+          <Columns
             field={field}
             control={control}
             setFields={setFields}
