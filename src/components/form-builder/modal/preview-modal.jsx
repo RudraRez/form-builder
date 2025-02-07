@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
-import DynamicForm from "../../Dynamic-Form";
+import DynamicForm from "../../dynamic-form";
 
 function PreviewModal({ show, onClose, formJson }) {
   const {
@@ -15,7 +15,7 @@ function PreviewModal({ show, onClose, formJson }) {
   };
 
   return (
-    <Modal show={show} onHide={onClose} centered size="lg">
+    <Modal show={show} onHide={onClose} centered size="xl">
       <Modal.Header closeButton>
         <Modal.Title>Preview Mode</Modal.Title>
       </Modal.Header>

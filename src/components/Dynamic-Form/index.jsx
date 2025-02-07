@@ -4,8 +4,8 @@ import CheckBox from "./fields/check-box";
 import Dropdown from "./fields/dropdown";
 import Radio from "./fields/radio";
 // import Section from "./layout/section";
-import Columns from "./layout/columns";
 import FieldSet from "./layout/field-set";
+import Columns from "./layout/columns";
 
 const DynamicForm = ({
   field,
