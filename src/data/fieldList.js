@@ -120,6 +120,12 @@ export const fieldComponents = [
     type: "section",
     fields: [],
   },
+  {
+    id: "dynamic-tabs",
+    label: "Dynamic Tabs",
+    type: "tabs",
+    tabs: [],
+  },
 ];
 
 export const dropDownOptions = [

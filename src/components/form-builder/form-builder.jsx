@@ -82,7 +82,7 @@ const FormBuilder = () => {
   return (
     <DndProvider backend={HTML5Backend}>
       <h1 className="text-center">Form Builder</h1>
-      <div className="my-4">
+      <div className="my-2">
         <button className="btn btn-secondary my-3" onClick={togglePreviewMode}>
           Preview Mode
         </button>
@@ -104,8 +104,8 @@ const FormBuilder = () => {
 
         <div className="row">
           {/* Left Panel - Available Fields */}
-          <div className="col-md-3">
-            <div className="available-fields card p-3 shadow-sm">
+          <div className="col-md left-pannel">
+            <div className="available-fields card p-1 shadow-sm">
               <h5 className="card-title mb-3">Available Fields</h5>
               {fieldList.map((field) => (
                 <DraggableField key={field.id} field={field} />
@@ -118,7 +118,7 @@ const FormBuilder = () => {
           </div>
 
           {/* Middle Panel - Form Canvas */}
-          <div className="col-md-6">
+          <div className="col-md">
             <FormCanvas
               fields={formFields}
               setFields={setFormFields}
