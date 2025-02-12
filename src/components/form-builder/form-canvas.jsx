@@ -1,13 +1,13 @@
 import React from "react";
 import { useDrop } from "react-dnd";
-import DynamicForm from "../Dynamic-Form";
+import DynamicForm from "../dynamic-form";
 import bin from "../../assets/svg/bin.svg";
 import editPencil from "../../assets/svg/edit-pencil.svg";
 import DragField from "../draggable-fields/drag-filed";
 
 const FormCanvas = ({ fields, setFields, control, onFieldSelect }) => {
   const [, drop] = useDrop({
-    accept: "FIELD",
+    accept: ["FIELD", "FIELD_SET", "TAB_FIELD"],
     drop: (item, monitor) => {
       if (monitor.didDrop()) return;
 

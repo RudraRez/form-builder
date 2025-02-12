@@ -7,7 +7,6 @@ import DynamicForm from "../..";
 function Columns({ field, setFields, onFieldSelect, previewMode, control }) {
   const [columns, setColumns] = useState([]);
 
-  // Sync local state with global fields
   useEffect(() => {
     setColumns(
       field.fields?.length
@@ -17,15 +16,34 @@ function Columns({ field, setFields, onFieldSelect, previewMode, control }) {
             { id: "col-2", type: "column", fields: [] },
           ]
     );
-  }, [field.fields]); // When `field.fields` changes, update `columns`.
+  }, [field.fields]);
 
   const updateColumns = (newColumns) => {
     setColumns(newColumns);
-    setFields((prevFields) =>
-      prevFields.map((f) =>
-        f.id === field.id ? { ...f, fields: newColumns } : f
-      )
-    );
+    setFields((prevFields) => {
+      const updateNestedFields = (fields) => {
+        return fields.map((layout) => {
+          if (layout.id === field.id) {
+            // this is for the columns layout to insert
+            return { ...layout, fields: newColumns };
+          }
+          if (layout.type === "field-set" && layout.fields.length > 0) {
+            return { ...layout, fields: updateNestedFields(layout.fields) };
+          }
+          if (layout.type === "tabs" && layout.tabs.length > 0) {
+            return {
+              ...layout,
+              tabs: layout.tabs.map((tab) => ({
+                ...tab,
+                fields: updateNestedFields(tab.fields),
+              })),
+            };
+          }
+          return layout;
+        });
+      };
+      return updateNestedFields(prevFields);
+    });
   };
 
   const handleDrop = (columnId, item) => {
@@ -96,6 +114,7 @@ function Columns({ field, setFields, onFieldSelect, previewMode, control }) {
               <DynamicForm
                 key={child.id}
                 field={child}
+                setFields={setFields}
                 control={control}
                 previewMode={previewMode}
               />
@@ -121,10 +140,11 @@ function Columns({ field, setFields, onFieldSelect, previewMode, control }) {
             control={control}
             handleDeleteField={handleDeleteField}
             moveField={moveField}
+            size={columns.length}
           />
         ))}
       </div>
-      <AddColumnButton addColumn={addColumn} />
+      {columns.length < 4 && <AddColumnButton addColumn={addColumn} />}
     </div>
   );
 }

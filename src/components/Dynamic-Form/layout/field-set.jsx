@@ -7,41 +7,66 @@ import editPencil from "../../../assets/svg/edit-pencil.svg";
 
 function FieldSet({ field, control, setFields, onFieldSelect, previewMode }) {
   const [, drop] = useDrop({
-    accept: "FIELD",
+    accept: ["FIELD"],
     drop: (item, monitor) => {
       if (monitor.didDrop()) return;
 
-      const isFieldAlreadyAdded = field.fields?.find((f) => f.id === item.id); // Check if field is already added
+      console.log("i am inside fieldset");
 
-      if (!isFieldAlreadyAdded) {
-        const timestamp = Date.now();
-        const newField = {
-          ...item,
-          id: `${item.id}-${timestamp}`,
-          name: `${item.id}-${timestamp}`,
-        };
+      // Ensure the field is not already inside the field-set
+      const isFieldAlreadyAdded = field.fields?.some((f) => f.id === item.id);
+      if (isFieldAlreadyAdded) return;
 
-        const updatedField = {
-          ...field,
-          fields: [...(field.fields || []), newField],
-        };
+      const timestamp = Date.now();
+      const newField = {
+        ...item,
+        id: `${item.id}-${timestamp}`,
+        name: `${item.id}-${timestamp}`,
+      };
 
-        setFields((prevFields) =>
-          prevFields.map((f) => (f.id === field.id ? updatedField : f))
-        );
-      }
+      // Call the onDrop function passed from the parent component
+      onDrop(field.id, newField);
     },
   });
+
+  const onDrop = (fieldId, newField) => {
+    setFields((prevFields) => {
+      const updateNestedFields = (fields) => {
+        return fields.map((layout) => {
+          if (layout.id === fieldId) {
+            return { ...layout, fields: [...(layout.fields || []), newField] };
+          }
+          if (layout.type === "field-set" && layout.fields?.length > 0) {
+            return { ...layout, fields: updateNestedFields(layout.fields) };
+          }
+          if (layout.type === "columns" && layout.fields?.length > 0) {
+            return { ...layout, fields: updateNestedFields(layout.fields) };
+          }
+          if (layout.type === "tabs" && layout.tabs?.length > 0) {
+            return {
+              ...layout,
+              tabs: layout.tabs.map((tab) => ({
+                ...tab,
+                fields: updateNestedFields(tab.fields),
+              })),
+            };
+          }
+          return layout;
+        });
+      };
+      return updateNestedFields(prevFields);
+    });
+  };
 
   const moveField = (dragIndex, hoverIndex) => {
     const updatedFields = [...field.fields];
     const draggedField = updatedFields.splice(dragIndex, 1)[0];
     updatedFields.splice(hoverIndex, 0, draggedField);
 
-    const updatedField = { ...field, fields: updatedFields };
+    const updatedFieldSet = { ...field, fields: updatedFields };
 
     setFields((prevFields) =>
-      prevFields.map((f) => (f.id === field.id ? updatedField : f))
+      prevFields.map((f) => (f.id === field.id ? updatedFieldSet : f))
     );
   };
 
@@ -84,7 +109,7 @@ function FieldSet({ field, control, setFields, onFieldSelect, previewMode }) {
                 index={index}
                 id={child.id}
                 moveField={moveField}
-                type="FIELD_INSIDE"
+                type="FIELD"
               >
                 <div className="card p-3 mb-3">
                   <div
@@ -124,8 +149,8 @@ function FieldSet({ field, control, setFields, onFieldSelect, previewMode }) {
                   <DynamicForm
                     field={child}
                     control={control}
-                    // setFields={setFields}
-                    // onFieldSelect={onFieldSelect}
+                    setFields={setFields}
+                    onFieldSelect={onFieldSelect}
                     previewMode={previewMode}
                   />
                 </div>

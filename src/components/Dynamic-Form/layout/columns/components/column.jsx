@@ -15,27 +15,15 @@ const Column = ({
   control,
   handleDeleteField,
   moveField,
+  size,
 }) => {
   const [, drop] = useDrop({
     accept: "FIELD",
-    drop: (item) => onDrop(column.id, item),
+    drop: (item, monitor) => {
+      if (monitor.didDrop()) return;
+      onDrop(column.id, item);
+    },
   });
-
-  //   if (previewMode) {
-  //     return (
-  //       <>
-  //         {column.fields.map((child, _) => (
-  //           <div key={child.id} className="w-100">
-  //             <DynamicForm
-  //               field={child}
-  //               control={control}
-  //               previewMode={previewMode}
-  //             />
-  //           </div>
-  //         ))}
-  //       </>
-  //     );
-  //   }
 
   return (
     <div
@@ -47,20 +35,22 @@ const Column = ({
         backgroundColor: "#f9f9f9",
       }}
     >
-      <img
-        src={bin}
-        alt="bin"
-        className="position-absolute bin"
-        style={{
-          top: "10px",
-          right: "10px",
-          width: "20px",
-          height: "20px",
-          cursor: "pointer",
-          zIndex: 20,
-        }}
-        onClick={() => removeColumn(column.id)}
-      />
+      {size > 1 && (
+        <img
+          src={bin}
+          alt="bin"
+          className="position-absolute bin"
+          style={{
+            top: "10px",
+            right: "10px",
+            width: "20px",
+            height: "20px",
+            cursor: "pointer",
+            zIndex: 20,
+          }}
+          onClick={() => removeColumn(column.id)}
+        />
+      )}
       {column.fields.length > 0 ? (
         column.fields.map((child, index) => (
           <DragField
@@ -113,6 +103,7 @@ const Column = ({
                 control={control}
                 setFields={setFields}
                 previewMode={previewMode}
+                onFieldSelect={onFieldSelect}
               />
             </div>
           </DragField>

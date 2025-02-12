@@ -115,12 +115,6 @@ export const fieldComponents = [
     maxColumns: 4,
   },
   {
-    id: "section",
-    label: "Section",
-    type: "section",
-    fields: [],
-  },
-  {
     id: "dynamic-tabs",
     label: "Dynamic Tabs",
     type: "tabs",

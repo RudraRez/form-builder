@@ -3,12 +3,12 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { fieldComponents, fieldList } from "../../data/fieldList";
 import FormCanvas from "./form-canvas";
-import FieldEditor from "./field-editor";
-import "./form-builder.css";
 import { useForm } from "react-hook-form";
 import DraggableField from "../draggable-fields/available-field";
 import PreviewModal from "./modal/preview-modal";
 import JsonModal from "./modal/json-modal";
+import EditableModal from "./modal/editable-modal";
+import "./form-builder.css";
 
 const FormBuilder = () => {
   const { control } = useForm();
@@ -18,11 +18,7 @@ const FormBuilder = () => {
   const [isPreviewMode, setIsPreviewMode] = useState(false); // for modal preview
   const [generatedJson, setGeneratedJson] = useState(null);
   const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
-
-  // Handle field selection
-  const handleFieldSelection = (field) => {
-    setActiveField(field);
-  };
+  const [isEditableModalOpen, setIsEditableModalOpen] = useState(false);
 
   // Update field in the form
   const updateField = (updatedField) => {
@@ -79,6 +75,13 @@ const FormBuilder = () => {
     setIsPreviewMode(!isPreviewMode);
   };
 
+  const openEditableModal = (field) => {
+    setActiveField(field);
+    setIsEditableModalOpen(!isEditableModalOpen);
+  };
+
+  console.log(formFields, "formFields");
+
   return (
     <DndProvider backend={HTML5Backend}>
       <h1 className="text-center">Form Builder</h1>
@@ -101,6 +104,14 @@ const FormBuilder = () => {
           onClose={() => setIsJsonModalOpen(false)}
           formJson={generatedJson}
         />
+        {activeField && (
+          <EditableModal
+            show={isEditableModalOpen}
+            onFieldUpdate={updateField}
+            field={activeField}
+            onClose={() => setIsEditableModalOpen(false)}
+          />
+        )}
 
         <div className="row">
           {/* Left Panel - Available Fields */}
@@ -116,27 +127,15 @@ const FormBuilder = () => {
               ))}
             </div>
           </div>
-
-          {/* Middle Panel - Form Canvas */}
+          {/* Right Panel - Canvas Fields */}
           <div className="col-md">
             <FormCanvas
               fields={formFields}
               setFields={setFormFields}
-              onFieldSelect={handleFieldSelection}
+              onFieldSelect={openEditableModal}
               control={control}
               isPreview={isPreviewMode}
             />
-          </div>
-
-          {/* Right Panel - Field Editor */}
-          <div className="col-md-3">
-            {activeField ? (
-              <FieldEditor field={activeField} onFieldUpdate={updateField} />
-            ) : (
-              <div className="card p-3 shadow-sm">
-                <h5 className="text-center">Select a Field to Edit</h5>
-              </div>
-            )}
           </div>
         </div>
       </div>
