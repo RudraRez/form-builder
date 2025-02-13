@@ -118,7 +118,10 @@ export const fieldComponents = [
     id: "dynamic-tabs",
     label: "Dynamic Tabs",
     type: "tabs",
-    tabs: [],
+    tabs: [
+      { id: "tab-1", label: "Tab 1", type: "tab", fields: [] },
+      { id: "tab-2", label: "Tab 2", type: "tab", fields: [] },
+    ],
   },
 ];
 

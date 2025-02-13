@@ -28,7 +28,7 @@ const Column = ({
   return (
     <div
       ref={drop}
-      className="column p-2 position-relative"
+      className="column p-3 position-relative"
       style={{
         flex: 1,
         border: "2px dashed #ddd",
@@ -41,8 +41,8 @@ const Column = ({
           alt="bin"
           className="position-absolute bin"
           style={{
-            top: "10px",
-            right: "10px",
+            top: "1px",
+            right: "1px",
             width: "20px",
             height: "20px",
             cursor: "pointer",

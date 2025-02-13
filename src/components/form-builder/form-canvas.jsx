@@ -63,11 +63,11 @@ const FormCanvas = ({ fields, setFields, control, onFieldSelect }) => {
             type="CANVAS"
           >
             <div
-              className={`nested-fields card row p-2 mb-3 ${
+              className={`nested-fields card p-2 mb-3 ${
                 field.type == "columns" ? "pt-5 " : ""
               }`}
             >
-              <div className="col">
+              <div>
                 <div
                   className="position-absolute d-flex justify-content-end p-2"
                   style={{
