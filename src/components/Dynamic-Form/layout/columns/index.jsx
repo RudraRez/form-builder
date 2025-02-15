@@ -44,7 +44,12 @@ function Columns({ field, setFields, onFieldSelect, previewMode, control }) {
       };
       return updateNestedFields(prevFields);
     });
+  
   };
+
+
+
+
 
   const handleDrop = (columnId, item) => {
     const newColumns = columns.map((col) =>

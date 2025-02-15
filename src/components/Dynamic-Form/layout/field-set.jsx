@@ -62,25 +62,74 @@ function FieldSet({ field, control, setFields, onFieldSelect, previewMode }) {
     const updatedFields = [...field.fields];
     const draggedField = updatedFields.splice(dragIndex, 1)[0];
     updatedFields.splice(hoverIndex, 0, draggedField);
-
+  
     const updatedFieldSet = { ...field, fields: updatedFields };
-
-    setFields((prevFields) =>
-      prevFields.map((f) => (f.id === field.id ? updatedFieldSet : f))
-    );
+  
+    setFields((prevFields) => {
+      const updateNestedFields = (fields) => {
+        return fields.map((layout) => {
+          if (layout.id === field.id) {
+            return updatedFieldSet;
+          }
+          if (layout.type === "field-set" && layout.fields?.length > 0) {
+            return { ...layout, fields: updateNestedFields(layout.fields) };
+          }
+          if (layout.type === "columns" && layout.fields?.length > 0) {
+            return { ...layout, fields: updateNestedFields(layout.fields) };
+          }
+          if (layout.type === "tabs" && layout.tabs?.length > 0) {
+            return {
+              ...layout,
+              tabs: layout.tabs.map((tab) => ({
+                ...tab,
+                fields: updateNestedFields(tab.fields),
+              })),
+            };
+          }
+          return layout;
+        });
+      };
+  
+      return updateNestedFields(prevFields);
+    });
   };
+  
 
+  
   const handleDeleteNestedField = (fieldId) => {
     if (window.confirm("Are you sure you want to delete this item?")) {
-      const updatedFields = field.fields.filter((f) => f.id !== fieldId);
-
-      const updatedFieldSet = { ...field, fields: updatedFields };
-
-      setFields((prevFields) =>
-        prevFields.map((f) => (f.id === field.id ? updatedFieldSet : f))
-      );
+      setFields((prevFields) => {
+        const updateNestedFields = (fields) => {
+          return fields
+            .map((layout) => {
+              if (layout.id === fieldId) {
+                return null; 
+              }
+              if (layout.type === "field-set" && layout.fields?.length > 0) {
+                return { ...layout, fields: updateNestedFields(layout.fields) };
+              }
+              if (layout.type === "columns" && layout.fields?.length > 0) {
+                return { ...layout, fields: updateNestedFields(layout.fields) };
+              }
+              if (layout.type === "tabs" && layout.tabs?.length > 0) {
+                return {
+                  ...layout,
+                  tabs: layout.tabs.map((tab) => ({
+                    ...tab,
+                    fields: updateNestedFields(tab.fields),
+                  })),
+                };
+              }
+              return layout;
+            })
+            .filter(Boolean); // Remove null values (deleted items)
+        };
+  
+        return updateNestedFields(prevFields);
+      });
     }
   };
+  
 
   return (
     <div ref={drop} style={{ width: "100%" }}>
