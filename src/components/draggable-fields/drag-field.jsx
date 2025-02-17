@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
+// runs when a field is dragged and dropped inside canvas
 const DragField = ({ id, index, moveField, type, children }) => {
   const ref = useRef(null);
 

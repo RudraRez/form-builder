@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import DynamicForm from "../dynamic-form";
 import bin from "../../assets/svg/bin.svg";
 import editPencil from "../../assets/svg/edit-pencil.svg";
-import DragField from "../draggable-fields/drag-filed";
+import DragField from "../draggable-fields/drag-field";
 import {
   onFieldSelect,
   removeField,

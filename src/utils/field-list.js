@@ -1,4 +1,4 @@
-export const fieldList = [
+export const fieldInputs = [
   {
     id: "text",
     label: "Text Input",
@@ -100,7 +100,7 @@ export const fieldList = [
   },
 ];
 
-export const fieldComponents = [
+export const fieldLayouts = [
   {
     id: "field-set",
     label: "Field Set",
@@ -125,7 +125,7 @@ export const fieldComponents = [
   },
 ];
 
-export const dropDownOptions = [
+export const dropdownOptions = [
   { value: "text", label: "Text Input" },
   { value: "number", label: "Number Input" },
   { value: "password", label: "Password Input" },

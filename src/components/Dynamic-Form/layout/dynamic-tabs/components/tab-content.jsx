@@ -3,7 +3,7 @@ import { useDrop } from "react-dnd";
 import bin from "../../../../../assets/svg/bin.svg";
 import editPencil from "../../../../../assets/svg/edit-pencil.svg";
 import DynamicForm from "../../../../dynamic-form";
-import DragField from "../../../../draggable-fields/drag-filed";
+import DragField from "../../../../draggable-fields/drag-field";
 
 function TabContent({
   tab,

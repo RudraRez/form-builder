@@ -7,7 +7,7 @@ import {
   removeField,
 } from "../../../store/slices/form-slice";
 import DynamicForm from "..";
-import DragField from "../../draggable-fields/drag-filed";
+import DragField from "../../draggable-fields/drag-field";
 import bin from "../../../assets/svg/bin.svg";
 import editPencil from "../../../assets/svg/edit-pencil.svg";
 

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { fieldComponents, fieldList } from "../../data/fieldList";
 import FormCanvas from "./form-canvas";
 import { useForm } from "react-hook-form";
 import DraggableField from "../draggable-fields/available-field";
@@ -11,6 +10,7 @@ import JsonModal from "./modal/json-modal";
 import EditableModal from "./modal/editable-modal";
 import { closeEditModal } from "../../store/slices/form-slice";
 import "./form-builder.css";
+import { fieldInputs, fieldLayouts } from "../../utils/field-list";
 
 const FormBuilder = () => {
   const { control } = useForm();
@@ -63,16 +63,16 @@ const FormBuilder = () => {
         )}
 
         <div className="row">
-          <div className="col-md left-pannel">
+          <div className="col-md left-panel">
             <div className="available-fields card p-1 shadow-sm">
               <h5 className="card-title mb-3">Available Fields</h5>
-              {fieldList.map((field) => (
+              {fieldInputs.map((field) => (
                 <div key={field.id}>
                   <DraggableField field={field} />
                 </div>
               ))}
               <h5 className="card-title my-3">Layout</h5>
-              {fieldComponents.map((field) => (
+              {fieldLayouts.map((field) => (
                 <div key={field.id}>
                   <DraggableField field={field} />
                 </div>

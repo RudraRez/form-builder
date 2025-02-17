@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
-import { dropDownOptions } from "../../../data/fieldList";
 import { useDispatch } from "react-redux";
 import { updateField } from "../../../store/slices/form-slice";
+import { dropdownOptions } from "../../../utils/field-list";
 
 function EditableModal({ show, onClose, field }) {
   const dispatch = useDispatch();
@@ -94,8 +94,8 @@ function EditableModal({ show, onClose, field }) {
                 value={editedField.type || "text"}
                 onChange={handleChange}
               >
-                {dropDownOptions &&
-                  dropDownOptions.map((option) => (
+                {dropdownOptions &&
+                  dropdownOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>

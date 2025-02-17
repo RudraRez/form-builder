@@ -1,7 +1,7 @@
 import React from "react";
 import { useDrop } from "react-dnd";
 import bin from "../../../../../assets/svg/bin.svg";
-import DragField from "../../../../draggable-fields/drag-filed";
+import DragField from "../../../../draggable-fields/drag-field";
 import editPencil from "../../../../../assets/svg/edit-pencil.svg";
 import DynamicForm from "../../..";
 import { useDispatch } from "react-redux";
