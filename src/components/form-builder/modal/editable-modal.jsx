@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
 import { dropDownOptions } from "../../../data/fieldList";
+import { useDispatch } from "react-redux";
+import { updateField } from "../../../store/slices/form-slice";
 
-function EditableModal({ show, onClose, field, onFieldUpdate }) {
+function EditableModal({ show, onClose, field }) {
+  const dispatch = useDispatch();
+
   const [editedField, setEditedField] = useState(field);
   const [validationString, setValidationString] = useState(
     JSON.stringify(field?.validation || {}, null, 2)
@@ -46,7 +50,7 @@ function EditableModal({ show, onClose, field, onFieldUpdate }) {
 
   const handleSave = () => {
     if (!jsonError) {
-      onFieldUpdate(editedField);
+      dispatch(updateField(editedField)); // this is the action to update the field
       onClose();
     } else {
       alert("Please fix the JSON errors before saving.");
@@ -69,7 +73,7 @@ function EditableModal({ show, onClose, field, onFieldUpdate }) {
                 name="name"
                 value={editedField.name || ""}
                 onChange={handleChange}
-                disabled
+                // disabled
               />
             </div>
             <div className="mb-3 col-6">

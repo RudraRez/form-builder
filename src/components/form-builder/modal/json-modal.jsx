@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Modal, Button } from "react-bootstrap";
+import { useSelector } from "react-redux";
 // import { CopyToClipboard } from "react-copy-to-clipboard";
 
-const JsonModal = ({ show, onClose, formJson }) => {
+const JsonModal = ({ show, onClose }) => {
   const [copied, setCopied] = useState(false);
 
   //   const handleCopy = () => {
@@ -10,13 +11,15 @@ const JsonModal = ({ show, onClose, formJson }) => {
   //     setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
   //   };
 
+  const formJsonNew = useSelector((state) => state.form.formJson);
+
   return (
     <Modal show={show} onHide={onClose} centered size="lg">
       <Modal.Header closeButton>
         <Modal.Title>Generated Form JSON</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {formJson ? (
+        {formJsonNew ? (
           <div
             style={{
               maxHeight: "400px",
@@ -34,7 +37,7 @@ const JsonModal = ({ show, onClose, formJson }) => {
                 fontSize: "14px",
               }}
             >
-              {JSON.stringify(formJson, null, 2)}
+              {JSON.stringify(formJsonNew, null, 2)}
             </pre>
           </div>
         ) : (

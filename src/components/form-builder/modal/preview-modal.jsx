@@ -2,13 +2,16 @@ import React from "react";
 import { Modal, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import DynamicForm from "../../dynamic-form";
+import { useSelector } from "react-redux";
 
-function PreviewModal({ show, onClose, formJson }) {
+function PreviewModal({ show, onClose }) {
   const {
     control,
     formState: { isValid },
     handleSubmit,
   } = useForm();
+
+  const formJsonNew = useSelector((state) => state.form.formJson);
 
   const formSubmit = (data) => {
     console.log(data);
@@ -20,9 +23,9 @@ function PreviewModal({ show, onClose, formJson }) {
         <Modal.Title>Preview Mode</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {formJson && formJson.form.children.length > 0 ? (
+        {formJsonNew && formJsonNew.form.children?.length > 0 ? (
           <form onSubmit={handleSubmit(formSubmit)}>
-            {formJson.form.children.map((field) => (
+            {formJsonNew.form.children.map((field) => (
               <DynamicForm
                 key={field.id}
                 field={field}
@@ -34,7 +37,7 @@ function PreviewModal({ show, onClose, formJson }) {
               <button
                 type="submit"
                 className="btn btn-primary"
-                disabled={!isValid}
+                // disabled={!isValid}
               >
                 Submit Form
               </button>

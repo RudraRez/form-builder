@@ -1,55 +1,56 @@
 import React, { useState, useEffect } from "react";
 import AddColumnButton from "./components/add-button";
 import Column from "./components/column";
-import "./style.scss";
 import DynamicForm from "../..";
+import { useDispatch, useSelector } from "react-redux";
+import { setFormFields } from "../../../../store/slices/form-slice";
+import "./style.scss";
 
-function Columns({ field, setFields, onFieldSelect, previewMode, control }) {
-  const [columns, setColumns] = useState([]);
+function Columns({ field, previewMode, control }) {
+  const dispatch = useDispatch();
+  const fields = useSelector((state) => state.form.formJson.form.children);
+
+  const [columns, setColumns] = useState(() =>
+    field.fields?.length > 0
+      ? field.fields
+      : [
+          { id: "col-1", type: "column", fields: [] },
+          { id: "col-2", type: "column", fields: [] },
+        ]
+  );
 
   useEffect(() => {
-    setColumns(
-      field.fields?.length
-        ? field.fields
-        : [
-            { id: "col-1", type: "column", fields: [] },
-            { id: "col-2", type: "column", fields: [] },
-          ]
-    );
+    if (field.fields && field.fields.length > 0) {
+      setColumns(field.fields);
+    }
   }, [field.fields]);
 
   const updateColumns = (newColumns) => {
     setColumns(newColumns);
-    setFields((prevFields) => {
-      const updateNestedFields = (fields) => {
-        return fields.map((layout) => {
-          if (layout.id === field.id) {
-            // this is for the columns layout to insert
-            return { ...layout, fields: newColumns };
-          }
-          if (layout.type === "field-set" && layout.fields.length > 0) {
-            return { ...layout, fields: updateNestedFields(layout.fields) };
-          }
-          if (layout.type === "tabs" && layout.tabs.length > 0) {
-            return {
-              ...layout,
-              tabs: layout.tabs.map((tab) => ({
-                ...tab,
-                fields: updateNestedFields(tab.fields),
-              })),
-            };
-          }
-          return layout;
-        });
-      };
-      return updateNestedFields(prevFields);
-    });
-  
+
+    const updateNestedFields = (fields) => {
+      return fields.map((layout) => {
+        if (layout.id === field.id) {
+          return { ...layout, fields: newColumns };
+        }
+        if (layout.type === "field-set" && layout.fields.length > 0) {
+          return { ...layout, fields: updateNestedFields(layout.fields) };
+        }
+        if (layout.type === "tabs" && layout.tabs.length > 0) {
+          return {
+            ...layout,
+            tabs: layout.tabs.map((tab) => ({
+              ...tab,
+              fields: updateNestedFields(tab.fields),
+            })),
+          };
+        }
+        return layout;
+      });
+    };
+
+    dispatch(setFormFields(updateNestedFields(fields)));
   };
-
-
-
-
 
   const handleDrop = (columnId, item) => {
     const newColumns = columns.map((col) =>
@@ -74,7 +75,7 @@ function Columns({ field, setFields, onFieldSelect, previewMode, control }) {
     if (columns.length < 4) {
       updateColumns([
         ...columns,
-        { id: `col-${columns.length + 1}`, fields: [] },
+        { id: `col-${columns.length + 1}`, type: "column", fields: [] },
       ]);
     }
   };
@@ -110,27 +111,22 @@ function Columns({ field, setFields, onFieldSelect, previewMode, control }) {
     updateColumns(newColumns);
   };
 
-  if (previewMode) {
-    return (
-      <div className="d-flex w-100 gap-3">
-        {columns.map((col) => (
-          <div key={col.id} className="w-100">
-            {col.fields.map((child, _) => (
-              <DynamicForm
-                key={child.id}
-                field={child}
-                setFields={setFields}
-                control={control}
-                previewMode={previewMode}
-              />
-            ))}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  return (
+  return previewMode ? (
+    <div className="d-flex w-100 gap-3">
+      {columns.map((col) => (
+        <div key={col.id} className="w-100">
+          {col.fields.map((child) => (
+            <DynamicForm
+              key={child.id}
+              field={child}
+              control={control}
+              previewMode={previewMode}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  ) : (
     <div className="w-100">
       <div className="d-flex w-100 gap-3">
         {columns.map((col) => (
@@ -139,8 +135,6 @@ function Columns({ field, setFields, onFieldSelect, previewMode, control }) {
             column={col}
             onDrop={handleDrop}
             removeColumn={removeColumn}
-            setFields={setFields}
-            onFieldSelect={onFieldSelect}
             previewMode={previewMode}
             control={control}
             handleDeleteField={handleDeleteField}

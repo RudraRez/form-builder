@@ -1,21 +1,26 @@
 import React from "react";
 import { useDrop } from "react-dnd";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setFormFields,
+  onFieldSelect,
+  removeField,
+} from "../../../store/slices/form-slice";
 import DynamicForm from "..";
 import DragField from "../../draggable-fields/drag-filed";
 import bin from "../../../assets/svg/bin.svg";
 import editPencil from "../../../assets/svg/edit-pencil.svg";
 
-function FieldSet({ field, control, setFields, onFieldSelect, previewMode }) {
+function FieldSet({ field, control, previewMode }) {
+  const dispatch = useDispatch();
+  const fields = useSelector((state) => state.form.formJson.form.children);
+
   const [, drop] = useDrop({
     accept: ["FIELD"],
     drop: (item, monitor) => {
+      console.log("i am inside field-set");
+
       if (monitor.didDrop()) return;
-
-      console.log("i am inside fieldset");
-
-      // Ensure the field is not already inside the field-set
-      const isFieldAlreadyAdded = field.fields?.some((f) => f.id === item.id);
-      if (isFieldAlreadyAdded) return;
 
       const timestamp = Date.now();
       const newField = {
@@ -24,115 +29,108 @@ function FieldSet({ field, control, setFields, onFieldSelect, previewMode }) {
         name: `${item.id}-${timestamp}`,
       };
 
-      // Call the onDrop function passed from the parent component
+      // id of the section in which the component is dropped
       onDrop(field.id, newField);
     },
   });
 
   const onDrop = (fieldId, newField) => {
-    setFields((prevFields) => {
-      const updateNestedFields = (fields) => {
-        return fields.map((layout) => {
-          if (layout.id === fieldId) {
-            return { ...layout, fields: [...(layout.fields || []), newField] };
-          }
-          if (layout.type === "field-set" && layout.fields?.length > 0) {
-            return { ...layout, fields: updateNestedFields(layout.fields) };
-          }
-          if (layout.type === "columns" && layout.fields?.length > 0) {
-            return { ...layout, fields: updateNestedFields(layout.fields) };
-          }
-          if (layout.type === "tabs" && layout.tabs?.length > 0) {
-            return {
-              ...layout,
-              tabs: layout.tabs.map((tab) => ({
-                ...tab,
-                fields: updateNestedFields(tab.fields),
-              })),
-            };
-          }
-          return layout;
-        });
-      };
-      return updateNestedFields(prevFields);
-    });
+    console.log(fieldId, newField);
+
+    const updateNestedFields = (fields) => {
+      return fields.map((layout) => {
+        if (layout.id === fieldId) {
+          return { ...layout, fields: [...(layout.fields || []), newField] };
+        }
+        if (layout.type === "field-set") {
+          return { ...layout, fields: updateNestedFields(layout.fields) };
+        }
+        // not working
+        if (layout.type === "columns") {
+          console.log("layout", layout, "fields");
+          return {
+            ...layout,
+            columns: layout.fields.map((column) => ({
+              ...column,
+              fields: updateNestedFields(column.fields),
+            })),
+          };
+        }
+        // not working
+        if (layout.type === "tabs" && layout.tabs?.length > 0) {
+          return {
+            ...layout,
+            tabs: layout.tabs.map((tab) => ({
+              ...tab,
+              fields: updateNestedFields(tab.fields),
+            })),
+          };
+        }
+        return layout;
+      });
+    };
+
+    console.log("---------- ", updateNestedFields(fields));
+
+    dispatch(setFormFields(updateNestedFields(fields)));
   };
 
   const moveField = (dragIndex, hoverIndex) => {
+    if (!field.fields) return;
+
     const updatedFields = [...field.fields];
     const draggedField = updatedFields.splice(dragIndex, 1)[0];
     updatedFields.splice(hoverIndex, 0, draggedField);
-  
-    const updatedFieldSet = { ...field, fields: updatedFields };
-  
-    setFields((prevFields) => {
-      const updateNestedFields = (fields) => {
-        return fields.map((layout) => {
-          if (layout.id === field.id) {
-            return updatedFieldSet;
-          }
-          if (layout.type === "field-set" && layout.fields?.length > 0) {
-            return { ...layout, fields: updateNestedFields(layout.fields) };
-          }
-          if (layout.type === "columns" && layout.fields?.length > 0) {
-            return { ...layout, fields: updateNestedFields(layout.fields) };
-          }
-          if (layout.type === "tabs" && layout.tabs?.length > 0) {
-            return {
-              ...layout,
-              tabs: layout.tabs.map((tab) => ({
-                ...tab,
-                fields: updateNestedFields(tab.fields),
-              })),
-            };
-          }
-          return layout;
-        });
-      };
-  
-      return updateNestedFields(prevFields);
-    });
-  };
-  
 
-  
-  const handleDeleteNestedField = (fieldId) => {
-    if (window.confirm("Are you sure you want to delete this item?")) {
-      setFields((prevFields) => {
-        const updateNestedFields = (fields) => {
-          return fields
-            .map((layout) => {
-              if (layout.id === fieldId) {
-                return null; 
-              }
-              if (layout.type === "field-set" && layout.fields?.length > 0) {
-                return { ...layout, fields: updateNestedFields(layout.fields) };
-              }
-              if (layout.type === "columns" && layout.fields?.length > 0) {
-                return { ...layout, fields: updateNestedFields(layout.fields) };
-              }
-              if (layout.type === "tabs" && layout.tabs?.length > 0) {
-                return {
-                  ...layout,
-                  tabs: layout.tabs.map((tab) => ({
-                    ...tab,
-                    fields: updateNestedFields(tab.fields),
-                  })),
-                };
-              }
-              return layout;
-            })
-            .filter(Boolean); // Remove null values (deleted items)
-        };
-  
-        return updateNestedFields(prevFields);
+    const updateNestedFields = (fields) => {
+      return fields.map((layout) => {
+        if (layout.id === field.id) {
+          return { ...layout, fields: updatedFields };
+        }
+        if (layout.type === "field-set") {
+          return { ...layout, fields: updateNestedFields(layout.fields) };
+        }
+        if (layout.type === "columns") {
+          return { ...layout, fields: updateNestedFields(layout.fields) };
+        }
+        if (layout.tabs) {
+          return {
+            ...layout,
+            tabs: layout.tabs.map((tab) => ({
+              ...tab,
+              fields: updateNestedFields(tab.fields),
+            })),
+          };
+        }
+        return layout;
       });
-    }
+    };
+
+    dispatch(setFormFields(updateNestedFields(fields)));
   };
-  
+
+  const handleDeleteNestedField = (fieldId) => {
+    const updateNestedFields = (fields) => {
+      return fields.map((layout) => {
+        if (layout.id === field.id) {
+          return {
+            ...layout,
+            fields: layout.fields.filter((field) => field.id !== fieldId),
+          };
+        }
+        if (layout.fields) {
+          return { ...layout, fields: updateNestedFields(layout.fields) };
+        }
+        return layout;
+      });
+    };
+
+    dispatch(setFormFields(updateNestedFields(fields)));
+    dispatch(removeField(fieldId));
+  };
 
   return (
-    <div ref={drop} style={{ width: "100%" }}>
+    <div ref={drop} style={{ width: "100%", minHeight: "50px" }}>
       <h6
         style={{
           borderBottom: "3px solid #ddd",
@@ -144,8 +142,8 @@ function FieldSet({ field, control, setFields, onFieldSelect, previewMode }) {
       </h6>
       {field.fields?.length ? (
         <div>
-          {field.fields.map((child, index) => {
-            return previewMode ? (
+          {field.fields.map((child, index) =>
+            previewMode ? (
               <DynamicForm
                 key={child.id}
                 field={child}
@@ -157,8 +155,8 @@ function FieldSet({ field, control, setFields, onFieldSelect, previewMode }) {
                 key={child.id}
                 index={index}
                 id={child.id}
-                moveField={moveField}
                 type="FIELD"
+                moveField={moveField}
               >
                 <div className="card p-3 mb-3">
                   <div
@@ -182,7 +180,6 @@ function FieldSet({ field, control, setFields, onFieldSelect, previewMode }) {
                       }}
                       onClick={() => handleDeleteNestedField(child.id)}
                     />
-
                     <img
                       src={editPencil}
                       alt="Edit"
@@ -192,20 +189,18 @@ function FieldSet({ field, control, setFields, onFieldSelect, previewMode }) {
                         height: "20px",
                         cursor: "pointer",
                       }}
-                      onClick={() => onFieldSelect(child)}
+                      onClick={() => dispatch(onFieldSelect(child))}
                     />
                   </div>
                   <DynamicForm
                     field={child}
                     control={control}
-                    setFields={setFields}
-                    onFieldSelect={onFieldSelect}
                     previewMode={previewMode}
                   />
                 </div>
               </DragField>
-            );
-          })}
+            )
+          )}
         </div>
       ) : (
         <p style={{ textAlign: "center", color: "#888", padding: "16px 0" }}>

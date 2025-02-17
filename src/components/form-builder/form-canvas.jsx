@@ -1,42 +1,47 @@
 import React from "react";
 import { useDrop } from "react-dnd";
+import { useDispatch, useSelector } from "react-redux";
 import DynamicForm from "../dynamic-form";
 import bin from "../../assets/svg/bin.svg";
 import editPencil from "../../assets/svg/edit-pencil.svg";
 import DragField from "../draggable-fields/drag-filed";
+import {
+  onFieldSelect,
+  removeField,
+  setFormFields,
+} from "../../store/slices/form-slice";
 
-const FormCanvas = ({ fields, setFields, control, onFieldSelect }) => {
+const FormCanvas = ({ control }) => {
+  const dispatch = useDispatch();
+  const fields = useSelector((state) => state.form.formJson.form.children);
+
+  // this only runs for 0 level nesting
   const [, drop] = useDrop({
-    accept: ["FIELD", "FIELD_SET", "TAB_FIELD"],
+    accept: ["FIELD"],
     drop: (item, monitor) => {
       if (monitor.didDrop()) return;
 
-      const isFieldAlreadyAdded = fields.find((f) => f.id === item.id);
-      if (!isFieldAlreadyAdded) {
-        const timestamp = Date.now();
-        const newField = {
-          ...item,
-          id: `${item.id}-${timestamp}`,
-          name: `${item.id}-${timestamp}`,
-        };
-        setFields((prevFields) => [...prevFields, newField]);
-      }
+      const timestamp = Date.now();
+      const newField = {
+        ...item,
+        id: `${item.id}-${timestamp}`,
+      };
+      dispatch(setFormFields([...fields, newField]));
     },
   });
 
-  const handleDelete = (fieldId) => {
-    if (window.confirm("Are you sure you want to delete this item?")) {
-      setFields((prevFields) =>
-        prevFields.filter((field) => field.id !== fieldId)
-      );
-    }
-  };
+  // const handleDelete = (fieldId) => {
+  //   if (window.confirm("Are you sure you want to delete this item?")) {
+  //     //todo : write logic to delete nested fields
+  //     dispatch(setFormFields(fields.filter((field) => field.id !== fieldId)));
+  //   }
+  // };
 
   const moveField = (dragIndex, hoverIndex) => {
     const updatedFields = [...fields];
     const draggedField = updatedFields.splice(dragIndex, 1)[0];
     updatedFields.splice(hoverIndex, 0, draggedField);
-    setFields(updatedFields);
+    dispatch(setFormFields(updatedFields));
   };
 
   return (
@@ -55,6 +60,7 @@ const FormCanvas = ({ fields, setFields, control, onFieldSelect }) => {
         <p>Drag fields here to build your form</p>
       ) : (
         fields.map((field, index) => (
+          // todo : this will be common
           <DragField
             key={field.id}
             index={index}
@@ -64,7 +70,7 @@ const FormCanvas = ({ fields, setFields, control, onFieldSelect }) => {
           >
             <div
               className={`nested-fields card p-2 mb-3 ${
-                field.type == "columns" ? "pt-5 " : ""
+                field.type === "columns" ? "pt-5 " : ""
               }`}
             >
               <div>
@@ -83,22 +89,17 @@ const FormCanvas = ({ fields, setFields, control, onFieldSelect }) => {
                     alt="Delete"
                     className="mx-1"
                     style={{ width: "20px", height: "20px", cursor: "pointer" }}
-                    onClick={() => handleDelete(field.id)}
+                    onClick={() => dispatch(removeField(field.id))}
                   />
                   <img
                     src={editPencil}
                     alt="Edit"
                     className="mx-1"
                     style={{ width: "20px", height: "20px", cursor: "pointer" }}
-                    onClick={() => onFieldSelect(field)}
+                    onClick={() => dispatch(onFieldSelect(field))}
                   />
                 </div>
-                <DynamicForm
-                  field={field}
-                  control={control}
-                  setFields={setFields}
-                  onFieldSelect={onFieldSelect}
-                />
+                <DynamicForm field={field} control={control} />
               </div>
             </div>
           </DragField>

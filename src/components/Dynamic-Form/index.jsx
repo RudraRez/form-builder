@@ -3,43 +3,22 @@ import InputField from "./fields/input-field";
 import CheckBox from "./fields/check-box";
 import Dropdown from "./fields/dropdown";
 import Radio from "./fields/radio";
-// import Section from "./layout/section";
 import FieldSet from "./layout/field-set";
 import Columns from "./layout/columns";
 import DynamicTabs from "./layout/dynamic-tabs";
 
-const DynamicForm = ({
-  field,
-  control,
-  setFields,
-  onFieldSelect,
-  previewMode,
-}) => {
+const DynamicForm = ({ field, control, previewMode }) => {
   return (
     <div>
       <div className="form-group">
         {field.type === "field-set" ? (
-          <FieldSet
-            field={field}
-            control={control}
-            setFields={setFields}
-            onFieldSelect={onFieldSelect}
-            previewMode={previewMode}
-          />
+          <FieldSet field={field} control={control} previewMode={previewMode} />
         ) : field.type === "columns" ? (
-          <Columns
-            field={field}
-            control={control}
-            setFields={setFields}
-            onFieldSelect={onFieldSelect}
-            previewMode={previewMode}
-          />
+          <Columns field={field} control={control} previewMode={previewMode} />
         ) : field.type == "tabs" ? (
           <DynamicTabs
             field={field}
             control={control}
-            setFields={setFields}
-            onFieldSelect={onFieldSelect}
             previewMode={previewMode}
           />
         ) : field.type === "checkbox" ? (

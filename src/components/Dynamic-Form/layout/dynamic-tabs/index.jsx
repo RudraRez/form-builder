@@ -2,43 +2,53 @@ import React from "react";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import TabContent from "./components/tab-content";
+import { useDispatch, useSelector } from "react-redux";
+import { setFormFields } from "../../../../store/slices/form-slice";
 
-function DynamicTabs({
-  field,
-  setFields,
-  onFieldSelect,
-  control,
-  previewMode,
-}) {
+function DynamicTabs({ field, control, previewMode }) {
+  const dispatch = useDispatch();
+  const fields = useSelector((state) => state.form.formJson.form.children);
+
   const tabs = field.tabs || [];
 
   const updateTabs = (newTabs) => {
-    setFields((prevFields) => {
-      const updateNestedFields = (fields) =>
-        fields.map((layout) => {
-          if (layout.id === field.id) {
-            return { ...layout, tabs: newTabs };
-          }
-          if (layout.type === "field-set" && layout.fields?.length) {
-            return { ...layout, fields: updateNestedFields(layout.fields) };
-          }
-          if (layout.type === "tabs" && layout.tabs?.length) {
-            return {
-              ...layout,
-              tabs: layout.tabs.map((tab) => ({
-                ...tab,
-                fields: updateNestedFields(tab.fields),
-              })),
-            };
-          }
-          return layout;
-        });
-
-      return updateNestedFields(prevFields);
-    });
+    // function to update nested fields
+    const updateNestedFields = (fields) =>
+      fields.map((layout) => {
+        if (layout.id === field.id) {
+          return { ...layout, tabs: newTabs };
+        }
+        if (layout.type === "field-set") {
+          return { ...layout, fields: updateNestedFields(layout.fields) };
+        }
+        // not working
+        if (layout.type === "columns") {
+          console.log("layout", layout, "fields");
+          return {
+            ...layout,
+            columns: layout.fields.map((column) => ({
+              ...column,
+              fields: updateNestedFields(column.fields),
+            })),
+          };
+        }
+        if (layout.type === "tabs" && layout.tabs?.length) {
+          return {
+            ...layout,
+            tabs: layout.tabs.map((tab) => ({
+              ...tab,
+              fields: updateNestedFields(tab.fields),
+            })),
+          };
+        }
+        return layout;
+      });
+    dispatch(setFormFields(updateNestedFields(fields)));
   };
 
   const handleDrop = (tabId, item) => {
+    console.log("i am inside dynamic-tabs");
+
     const newField = {
       ...item,
       id: `${item.id}-${Date.now()}`,
@@ -55,6 +65,7 @@ function DynamicTabs({
     );
 
     updateTabs(newTabs);
+    console.log("newTabs", newTabs);
   };
 
   const addTab = () => {
@@ -95,14 +106,12 @@ function DynamicTabs({
         {tabs.map((tab) => (
           <Tab eventKey={tab.id} title={tab.label} key={tab.id}>
             <TabContent
+              control={control}
+              previewMode={previewMode}
               tab={tab}
               onDrop={handleDrop}
               removeTab={removeTab}
-              onFieldSelect={onFieldSelect}
               handleDeleteField={handleDeleteField}
-              control={control}
-              setFields={setFields}
-              previewMode={previewMode}
             />
           </Tab>
         ))}

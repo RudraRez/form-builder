@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { fieldComponents, fieldList } from "../../data/fieldList";
@@ -8,79 +9,28 @@ import DraggableField from "../draggable-fields/available-field";
 import PreviewModal from "./modal/preview-modal";
 import JsonModal from "./modal/json-modal";
 import EditableModal from "./modal/editable-modal";
+import { closeEditModal } from "../../store/slices/form-slice";
 import "./form-builder.css";
 
 const FormBuilder = () => {
   const { control } = useForm();
+  const dispatch = useDispatch();
 
-  const [formFields, setFormFields] = useState([]); // Form fields main childrens json
-  const [activeField, setActiveField] = useState(null); // Field being edited
-  const [isPreviewMode, setIsPreviewMode] = useState(false); // for modal preview
-  const [generatedJson, setGeneratedJson] = useState(null);
+  const formFields = useSelector((state) => state.form.formJson.form.children); // this is the form fields
+  const activeField = useSelector((state) => state.form.fieldSelected); // this id for edit field
+  // const isEditableModalOpen = useSelector((state) => state.form.editMode); // this id for edit field
+
+  // this is for modal state
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
-  const [isEditableModalOpen, setIsEditableModalOpen] = useState(false);
-
-  // Update field in the form
-  const updateField = (updatedField) => {
-    const updateNestedFields = (fields) => {
-      return fields.map((field) => {
-        if (field.id === updatedField.id) {
-          return updatedField;
-        }
-
-        if (field.type === "field-set") {
-          return {
-            ...field,
-            fields: updateNestedFields(field.fields),
-          };
-        }
-
-        if (field.type === "columns") {
-          return {
-            ...field,
-            fields: field.fields.map((column) => ({
-              ...column,
-              fields: updateNestedFields(column.fields), // Fix: Update fields inside each column
-            })),
-          };
-        }
-
-        return field;
-      });
-    };
-
-    setFormFields((prevFields) => updateNestedFields(prevFields));
-  };
-
-  // Create JSON from form fields
-  const createFormJson = () => {
-    const formJson = {
-      version: "1.0",
-      form: {
-        key: "root",
-        type: "container",
-        children: formFields,
-      },
-    };
-    setGeneratedJson(formJson);
-  };
 
   const openJsonModal = () => {
-    createFormJson();
     setIsJsonModalOpen(!isJsonModalOpen);
   };
 
   const togglePreviewMode = () => {
-    createFormJson();
     setIsPreviewMode(!isPreviewMode);
   };
-
-  const openEditableModal = (field) => {
-    setActiveField(field);
-    setIsEditableModalOpen(!isEditableModalOpen);
-  };
-
-  console.log(formFields, "formFields");
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -97,42 +47,41 @@ const FormBuilder = () => {
         <PreviewModal
           show={isPreviewMode}
           onClose={() => setIsPreviewMode(false)}
-          formJson={generatedJson}
         />
+
         <JsonModal
           show={isJsonModalOpen}
           onClose={() => setIsJsonModalOpen(false)}
-          formJson={generatedJson}
         />
+
         {activeField && (
           <EditableModal
             show={isEditableModalOpen}
-            onFieldUpdate={updateField}
-            field={activeField}
-            onClose={() => setIsEditableModalOpen(false)}
+            field={activeField} // this is the field to edit because i have to show modal with field is selected
+            onClose={() => dispatch(closeEditModal())}
           />
         )}
 
         <div className="row">
-          {/* Left Panel - Available Fields */}
           <div className="col-md left-pannel">
             <div className="available-fields card p-1 shadow-sm">
               <h5 className="card-title mb-3">Available Fields</h5>
               {fieldList.map((field) => (
-                <DraggableField key={field.id} field={field} />
+                <div key={field.id}>
+                  <DraggableField field={field} />
+                </div>
               ))}
               <h5 className="card-title my-3">Layout</h5>
               {fieldComponents.map((field) => (
-                <DraggableField key={field.id} field={field} />
+                <div key={field.id}>
+                  <DraggableField field={field} />
+                </div>
               ))}
             </div>
           </div>
-          {/* Right Panel - Canvas Fields */}
           <div className="col-md">
             <FormCanvas
               fields={formFields}
-              setFields={setFormFields}
-              onFieldSelect={openEditableModal}
               control={control}
               isPreview={isPreviewMode}
             />

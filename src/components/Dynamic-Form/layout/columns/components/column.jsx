@@ -4,19 +4,22 @@ import bin from "../../../../../assets/svg/bin.svg";
 import DragField from "../../../../draggable-fields/drag-filed";
 import editPencil from "../../../../../assets/svg/edit-pencil.svg";
 import DynamicForm from "../../..";
+import { useDispatch } from "react-redux";
+import { onFieldSelect } from "../../../../../store/slices/form-slice";
 
 const Column = ({
   column,
   onDrop,
   removeColumn,
   setFields,
-  onFieldSelect,
   previewMode,
   control,
   handleDeleteField,
   moveField,
   size,
 }) => {
+  const dispatch = useDispatch();
+
   const [, drop] = useDrop({
     accept: "FIELD",
     drop: (item, monitor) => {
@@ -95,7 +98,7 @@ const Column = ({
                     height: "20px",
                     cursor: "pointer",
                   }}
-                  onClick={() => onFieldSelect(child)}
+                  onClick={() => dispatch(onFieldSelect(child))}
                 />
               </div>
               <DynamicForm
