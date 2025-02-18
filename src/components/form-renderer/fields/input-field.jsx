@@ -12,19 +12,20 @@ function InputField({ field, control }) {
         )}
       </Form.Label>
       <Controller
-        name={field.id}
+        name={field.name}
         control={control}
         defaultValue={field.defaultValue || ""}
         rules={field.validation || {}}
         render={({ field: controllerField, fieldState: { error } }) => (
-          <div>
+          <>
             <Form.Control
-              type={field.type}
-              placeholder={field.placeholder || ""}
               {...controllerField}
+              type={field.type !== "textarea" ? field.type : undefined}
+              as={field.type === "textarea" ? "textarea" : "input"}
+              placeholder={field.placeholder || ""}
             />
-            {error && <p className="text-danger">{error.message}</p>}
-          </div>
+            {error && <p className="text-danger mt-1">{error.message}</p>}
+          </>
         )}
       />
     </div>

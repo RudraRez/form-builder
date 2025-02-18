@@ -31,15 +31,18 @@ const formSlice = createSlice({
     // nested update field
     updateField(state, action) {
       const updatedField = action.payload;
+
       const updateNestedFields = (fields) =>
         fields.map((field) => {
           if (field.id === updatedField.id) {
             return updatedField;
           }
-          if (field.type === "field-set") {
+
+          if (field.type === "field-set" && field.fields) {
             return { ...field, fields: updateNestedFields(field.fields) };
           }
-          if (field.type === "columns") {
+
+          if (field.type === "columns" && field.fields) {
             return {
               ...field,
               fields: field.fields.map((column) => ({
@@ -48,7 +51,8 @@ const formSlice = createSlice({
               })),
             };
           }
-          if (field.type === "tabs") {
+
+          if (field.type === "tabs" && field.tabs) {
             return {
               ...field,
               tabs: field.tabs.map((tab) => ({
@@ -57,6 +61,7 @@ const formSlice = createSlice({
               })),
             };
           }
+
           return field;
         });
 

@@ -7,15 +7,14 @@ import FormRenderer from "../../form-renderer";
 function PreviewModal({ show, onClose }) {
   const {
     control,
-    register,
-    handleSubmit,
     formState: { isValid },
-  } = useForm({ mode: "onChange" });
+    handleSubmit,
+  } = useForm();
 
   const formJsonNew = useSelector((state) => state.form.formJson);
 
   const formSubmit = (data) => {
-    console.log("FormData:", data);
+    console.log(data);
   };
 
   return (
@@ -31,7 +30,6 @@ function PreviewModal({ show, onClose }) {
                 key={field.id}
                 field={field}
                 control={control}
-                register={register}
                 previewMode={show}
               />
             ))}
@@ -39,7 +37,7 @@ function PreviewModal({ show, onClose }) {
               <button
                 type="submit"
                 className="btn btn-primary"
-                disabled={!isValid}
+                // disabled={!isValid}
               >
                 Submit Form
               </button>

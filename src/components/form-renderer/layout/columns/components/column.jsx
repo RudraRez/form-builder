@@ -5,7 +5,6 @@ import DragField from "../../../../draggable-fields/drag-field";
 import editPencil from "../../../../../assets/svg/edit-pencil.svg";
 import { useDispatch } from "react-redux";
 import { onFieldSelect } from "../../../../../store/slices/form-slice";
-import { Form } from "react-bootstrap";
 import FormRenderer from "../../..";
 
 const Column = ({

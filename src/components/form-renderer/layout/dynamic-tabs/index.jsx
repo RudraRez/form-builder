@@ -63,7 +63,6 @@ function DynamicTabs({ field, control, previewMode }) {
     );
 
     updateTabs(newTabs);
-    console.log("newTabs", newTabs);
   };
 
   const addTab = () => {

@@ -10,9 +10,12 @@ import {
   setFormFields,
 } from "../../store/slices/form-slice";
 import FormRenderer from "../form-renderer";
+import { useForm } from "react-hook-form";
 
 const FormCanvas = ({ previewMode }) => {
   const dispatch = useDispatch();
+
+  const { control } = useForm();
 
   const fields = useSelector((state) => state.form.formJson.form.children);
 
@@ -26,6 +29,7 @@ const FormCanvas = ({ previewMode }) => {
       const newField = {
         ...item,
         id: `${item.id}-${timestamp}`,
+        // name: `${item.name}-${timestamp}`,
       };
       dispatch(setFormFields([...fields, newField]));
     },
@@ -93,7 +97,11 @@ const FormCanvas = ({ previewMode }) => {
                     onClick={() => dispatch(onFieldSelect(field))}
                   />
                 </div>
-                <FormRenderer field={field} previewMode={previewMode} />
+                <FormRenderer
+                  field={field}
+                  previewMode={previewMode}
+                  control={control}
+                />
               </div>
             </div>
           </DragField>

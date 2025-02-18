@@ -12,7 +12,7 @@ function Radio({ field, control }) {
         )}
       </Form.Label>
       <Controller
-        name={field.id}
+        name={field.name}
         control={control}
         defaultValue={field.defaultValue || ""}
         rules={field.validation || {}}

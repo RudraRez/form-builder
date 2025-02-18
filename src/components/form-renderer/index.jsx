@@ -8,9 +8,7 @@ import Columns from "./layout/columns";
 import DynamicTabs from "./layout/dynamic-tabs";
 import { useForm } from "react-hook-form";
 
-const FormRenderer = ({ previewMode, field }) => {
-  const { control } = useForm();
-
+const FormRenderer = ({ previewMode, field, control }) => {
   return (
     <div>
       <div className="form-group">

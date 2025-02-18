@@ -7,50 +7,54 @@ import { dropdownOptions } from "../../../utils/field-list";
 function EditableModal({ show, onClose, field }) {
   const dispatch = useDispatch();
 
-  const [editedField, setEditedField] = useState(field);
+  const [editedField, setEditedField] = useState({ ...field });
   const [validationString, setValidationString] = useState(
     JSON.stringify(field?.validation || {}, null, 2)
   );
   const [jsonError, setJsonError] = useState(null);
 
   useEffect(() => {
-    setEditedField(field);
+    setEditedField({ ...field }); // Ensure a new object reference
     setValidationString(JSON.stringify(field.validation || {}, null, 2));
   }, [field]);
 
   const handleChange = (e) => {
-    const { id, name, value, checked } = e.target;
+    const { name, value, checked, type } = e.target;
 
-    if (name === "options") {
-      setEditedField({
-        ...editedField,
-        options: value.split("#").map((opt) => opt.trim()),
-      });
-    } else if (name === "required") {
-      setEditedField({
-        ...editedField,
-        validation: {
-          ...editedField.validation,
-          required: checked,
-        },
-      });
-    } else if (name === "validation") {
-      setValidationString(value);
-      try {
-        const parsed = JSON.parse(value);
-        setEditedField((prev) => ({ ...prev, validation: parsed }));
-        setJsonError(null);
-      } catch (err) {
-        setJsonError("Invalid JSON format");
+    setEditedField((prev) => {
+      if (name === "options") {
+        return {
+          ...prev,
+          options: value.split("#").map((opt) => opt.trim()),
+        };
       }
-    } else {
-      setEditedField((prev) => ({ ...prev, [name]: value }));
-    }
+      if (name === "required") {
+        return {
+          ...prev,
+          validation: {
+            ...prev.validation,
+            required: checked,
+          },
+        };
+      }
+      if (name === "validation") {
+        setValidationString(value);
+        try {
+          const parsed = JSON.parse(value);
+          setJsonError(null);
+          return { ...prev, validation: parsed };
+        } catch (err) {
+          setJsonError("Invalid JSON format");
+          return prev;
+        }
+      }
+      return { ...prev, [name]: type === "checkbox" ? checked : value };
+    });
   };
 
   const handleSave = () => {
     if (!jsonError) {
-      dispatch(updateField(editedField)); // this is the action to update the field
+      dispatch(updateField(editedField));
       onClose();
     } else {
       alert("Please fix the JSON errors before saving.");
@@ -73,7 +77,7 @@ function EditableModal({ show, onClose, field }) {
                 name="id"
                 value={editedField.id || ""}
                 onChange={handleChange}
-                // disabled
+                disabled
               />
             </div>
             <div className="mb-3 col-6">
@@ -84,7 +88,6 @@ function EditableModal({ show, onClose, field }) {
                 name="name"
                 value={editedField.name || ""}
                 onChange={handleChange}
-                // disabled
               />
             </div>
             <div className="mb-3 col-6">
@@ -105,12 +108,11 @@ function EditableModal({ show, onClose, field }) {
                 value={editedField.type || "text"}
                 onChange={handleChange}
               >
-                {dropdownOptions &&
-                  dropdownOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
+                {dropdownOptions?.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -141,7 +143,7 @@ function EditableModal({ show, onClose, field }) {
             <div className="mb-3 mx-3 form-check">
               <input
                 type="checkbox"
-                className="form-check-input "
+                className="form-check-input"
                 name="required"
                 checked={editedField.validation?.required || false}
                 onChange={handleChange}

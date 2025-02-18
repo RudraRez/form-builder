@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import FormCanvas from "./form-canvas";
-import { useForm } from "react-hook-form";
 import DraggableField from "../draggable-fields/available-field";
 import PreviewModal from "./modal/preview-modal";
 import JsonModal from "./modal/json-modal";
