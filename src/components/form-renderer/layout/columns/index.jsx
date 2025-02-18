@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import AddColumnButton from "./components/add-button";
 import Column from "./components/column";
-import DynamicForm from "../..";
 import { useDispatch, useSelector } from "react-redux";
 import { setFormFields } from "../../../../store/slices/form-slice";
 import "./style.scss";
+import FormRenderer from "../..";
 
 function Columns({ field, previewMode, control }) {
   const dispatch = useDispatch();
@@ -33,8 +33,17 @@ function Columns({ field, previewMode, control }) {
         if (layout.id === field.id) {
           return { ...layout, fields: newColumns };
         }
-        if (layout.type === "field-set" && layout.fields.length > 0) {
+        if (layout.type === "field-set") {
           return { ...layout, fields: updateNestedFields(layout.fields) };
+        }
+        if (layout.type === "columns") {
+          return {
+            ...layout,
+            fields: layout.fields.map((column) => ({
+              ...column,
+              fields: updateNestedFields(column.fields),
+            })),
+          };
         }
         if (layout.type === "tabs" && layout.tabs.length > 0) {
           return {
@@ -116,7 +125,7 @@ function Columns({ field, previewMode, control }) {
       {columns.map((col) => (
         <div key={col.id} className="w-100">
           {col.fields.map((child) => (
-            <DynamicForm
+            <FormRenderer
               key={child.id}
               field={child}
               control={control}

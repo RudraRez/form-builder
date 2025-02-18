@@ -1,7 +1,6 @@
 import React from "react";
 import { useDrop } from "react-dnd";
 import { useDispatch, useSelector } from "react-redux";
-import DynamicForm from "../dynamic-form";
 import bin from "../../assets/svg/bin.svg";
 import editPencil from "../../assets/svg/edit-pencil.svg";
 import DragField from "../draggable-fields/drag-field";
@@ -10,9 +9,11 @@ import {
   removeField,
   setFormFields,
 } from "../../store/slices/form-slice";
+import FormRenderer from "../form-renderer";
 
-const FormCanvas = ({ control }) => {
+const FormCanvas = ({ previewMode }) => {
   const dispatch = useDispatch();
+
   const fields = useSelector((state) => state.form.formJson.form.children);
 
   // this only runs for 0 level nesting
@@ -29,13 +30,6 @@ const FormCanvas = ({ control }) => {
       dispatch(setFormFields([...fields, newField]));
     },
   });
-
-  // const handleDelete = (fieldId) => {
-  //   if (window.confirm("Are you sure you want to delete this item?")) {
-  //     //todo : write logic to delete nested fields
-  //     dispatch(setFormFields(fields.filter((field) => field.id !== fieldId)));
-  //   }
-  // };
 
   const moveField = (dragIndex, hoverIndex) => {
     const updatedFields = [...fields];
@@ -99,7 +93,7 @@ const FormCanvas = ({ control }) => {
                     onClick={() => dispatch(onFieldSelect(field))}
                   />
                 </div>
-                <DynamicForm field={field} control={control} />
+                <FormRenderer field={field} previewMode={previewMode} />
               </div>
             </div>
           </DragField>

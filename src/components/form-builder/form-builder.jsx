@@ -13,15 +13,12 @@ import "./form-builder.css";
 import { fieldInputs, fieldLayouts } from "../../utils/field-list";
 
 const FormBuilder = () => {
-  const { control } = useForm();
   const dispatch = useDispatch();
-
-  const formFields = useSelector((state) => state.form.formJson.form.children); // this is the form fields
   const activeField = useSelector((state) => state.form.fieldSelected); // this id for edit field
-  // const isEditableModalOpen = useSelector((state) => state.form.editMode); // this id for edit field
+  const isEditableModalOpen = useSelector((state) => state.form.editMode); // this id for edit field
 
   // this is for modal state
-  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
   const [isJsonModalOpen, setIsJsonModalOpen] = useState(false);
 
   const openJsonModal = () => {
@@ -29,7 +26,7 @@ const FormBuilder = () => {
   };
 
   const togglePreviewMode = () => {
-    setIsPreviewMode(!isPreviewMode);
+    setPreviewMode(!previewMode);
   };
 
   return (
@@ -45,8 +42,8 @@ const FormBuilder = () => {
         </button>
 
         <PreviewModal
-          show={isPreviewMode}
-          onClose={() => setIsPreviewMode(false)}
+          show={previewMode}
+          onClose={() => setPreviewMode(false)}
         />
 
         <JsonModal
@@ -80,11 +77,7 @@ const FormBuilder = () => {
             </div>
           </div>
           <div className="col-md">
-            <FormCanvas
-              fields={formFields}
-              control={control}
-              isPreview={isPreviewMode}
-            />
+            <FormCanvas previewMode={previewMode} />
           </div>
         </div>
       </div>

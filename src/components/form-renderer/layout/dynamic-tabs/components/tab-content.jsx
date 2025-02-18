@@ -2,8 +2,9 @@ import React from "react";
 import { useDrop } from "react-dnd";
 import bin from "../../../../../assets/svg/bin.svg";
 import editPencil from "../../../../../assets/svg/edit-pencil.svg";
-import DynamicForm from "../../../../dynamic-form";
 import DragField from "../../../../draggable-fields/drag-field";
+import FormRenderer from "../../..";
+import { useDispatch } from "react-redux";
 
 function TabContent({
   tab,
@@ -14,13 +15,13 @@ function TabContent({
   onFieldSelect,
   previewMode,
 }) {
+  const dispatch = useDispatch();
+
   const [, drop] = useDrop({
     accept: ["FIELD"],
 
     drop: (item, monitor) => {
-      if (monitor.didDrop()) {
-        return;
-      }
+      if (monitor.didDrop()) return;
       onDrop(tab.id, item);
     },
   });
@@ -30,7 +31,7 @@ function TabContent({
       <>
         {tab.fields.map((child, index) => (
           <div key={index}>
-            <DynamicForm
+            <FormRenderer
               field={child}
               control={control}
               previewMode={previewMode}
@@ -69,10 +70,10 @@ function TabContent({
                   alt="Edit"
                   className="mx-1"
                   style={{ width: "20px", cursor: "pointer" }}
-                  onClick={() => onFieldSelect(child)}
+                  onClick={() => dispatch(onFieldSelect(child))}
                 />
               </div>
-              <DynamicForm
+              <FormRenderer
                 field={child}
                 setFields={setFields}
                 control={control}

@@ -19,7 +19,7 @@ function EditableModal({ show, onClose, field }) {
   }, [field]);
 
   const handleChange = (e) => {
-    const { name, value, checked } = e.target;
+    const { id, name, value, checked } = e.target;
 
     if (name === "options") {
       setEditedField({
@@ -65,6 +65,17 @@ function EditableModal({ show, onClose, field }) {
       <Modal.Body>
         <div className="p-3 card">
           <form className="row">
+            <div className="mb-3 col-6">
+              <label className="form-label">ID</label>
+              <input
+                type="text"
+                className="form-control"
+                name="id"
+                value={editedField.id || ""}
+                onChange={handleChange}
+                // disabled
+              />
+            </div>
             <div className="mb-3 col-6">
               <label className="form-label">Name</label>
               <input

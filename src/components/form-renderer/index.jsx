@@ -6,8 +6,11 @@ import Radio from "./fields/radio";
 import FieldSet from "./layout/field-set";
 import Columns from "./layout/columns";
 import DynamicTabs from "./layout/dynamic-tabs";
+import { useForm } from "react-hook-form";
 
-const DynamicForm = ({ field, control, previewMode }) => {
+const FormRenderer = ({ previewMode, field }) => {
+  const { control } = useForm();
+
   return (
     <div>
       <div className="form-group">
@@ -35,4 +38,4 @@ const DynamicForm = ({ field, control, previewMode }) => {
   );
 };
 
-export default DynamicForm;
+export default FormRenderer;

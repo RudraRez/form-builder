@@ -6,10 +6,10 @@ import {
   onFieldSelect,
   removeField,
 } from "../../../store/slices/form-slice";
-import DynamicForm from "..";
 import DragField from "../../draggable-fields/drag-field";
 import bin from "../../../assets/svg/bin.svg";
 import editPencil from "../../../assets/svg/edit-pencil.svg";
+import FormRenderer from "..";
 
 function FieldSet({ field, control, previewMode }) {
   const dispatch = useDispatch();
@@ -18,9 +18,9 @@ function FieldSet({ field, control, previewMode }) {
   const [, drop] = useDrop({
     accept: ["FIELD"],
     drop: (item, monitor) => {
-      console.log("i am inside field-set");
-
       if (monitor.didDrop()) return;
+
+      console.log("i am inside field-set");
 
       const timestamp = Date.now();
       const newField = {
@@ -35,8 +35,6 @@ function FieldSet({ field, control, previewMode }) {
   });
 
   const onDrop = (fieldId, newField) => {
-    console.log(fieldId, newField);
-
     const updateNestedFields = (fields) => {
       return fields.map((layout) => {
         if (layout.id === fieldId) {
@@ -45,19 +43,16 @@ function FieldSet({ field, control, previewMode }) {
         if (layout.type === "field-set") {
           return { ...layout, fields: updateNestedFields(layout.fields) };
         }
-        // not working
         if (layout.type === "columns") {
-          console.log("layout", layout, "fields");
           return {
             ...layout,
-            columns: layout.fields.map((column) => ({
+            fields: layout.fields.map((column) => ({
               ...column,
               fields: updateNestedFields(column.fields),
             })),
           };
         }
-        // not working
-        if (layout.type === "tabs" && layout.tabs?.length > 0) {
+        if (layout.type === "tabs") {
           return {
             ...layout,
             tabs: layout.tabs.map((tab) => ({
@@ -69,8 +64,6 @@ function FieldSet({ field, control, previewMode }) {
         return layout;
       });
     };
-
-    console.log("---------- ", updateNestedFields(fields));
 
     dispatch(setFormFields(updateNestedFields(fields)));
   };
@@ -91,9 +84,15 @@ function FieldSet({ field, control, previewMode }) {
           return { ...layout, fields: updateNestedFields(layout.fields) };
         }
         if (layout.type === "columns") {
-          return { ...layout, fields: updateNestedFields(layout.fields) };
+          return {
+            ...layout,
+            fields: layout.fields.map((column) => ({
+              ...column,
+              fields: updateNestedFields(column.fields),
+            })),
+          };
         }
-        if (layout.tabs) {
+        if (layout.type === "tabs") {
           return {
             ...layout,
             tabs: layout.tabs.map((tab) => ({
@@ -118,8 +117,26 @@ function FieldSet({ field, control, previewMode }) {
             fields: layout.fields.filter((field) => field.id !== fieldId),
           };
         }
-        if (layout.fields) {
+        if (layout.type === "field-set") {
           return { ...layout, fields: updateNestedFields(layout.fields) };
+        }
+        if (layout.type === "columns") {
+          return {
+            ...layout,
+            fields: layout.fields.map((column) => ({
+              ...column,
+              fields: updateNestedFields(column.fields),
+            })),
+          };
+        }
+        if (layout.type === "tabs") {
+          return {
+            ...layout,
+            tabs: layout.tabs.map((tab) => ({
+              ...tab,
+              fields: updateNestedFields(tab.fields),
+            })),
+          };
         }
         return layout;
       });
@@ -144,7 +161,7 @@ function FieldSet({ field, control, previewMode }) {
         <div>
           {field.fields.map((child, index) =>
             previewMode ? (
-              <DynamicForm
+              <FormRenderer
                 key={child.id}
                 field={child}
                 control={control}
@@ -192,7 +209,7 @@ function FieldSet({ field, control, previewMode }) {
                       onClick={() => dispatch(onFieldSelect(child))}
                     />
                   </div>
-                  <DynamicForm
+                  <FormRenderer
                     field={child}
                     control={control}
                     previewMode={previewMode}

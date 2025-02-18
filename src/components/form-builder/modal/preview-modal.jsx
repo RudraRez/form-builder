@@ -1,20 +1,21 @@
 import React from "react";
 import { Modal, Button } from "react-bootstrap";
 import { useForm } from "react-hook-form";
-import DynamicForm from "../../dynamic-form";
 import { useSelector } from "react-redux";
+import FormRenderer from "../../form-renderer";
 
 function PreviewModal({ show, onClose }) {
   const {
     control,
-    formState: { isValid },
+    register,
     handleSubmit,
-  } = useForm();
+    formState: { isValid },
+  } = useForm({ mode: "onChange" });
 
   const formJsonNew = useSelector((state) => state.form.formJson);
 
   const formSubmit = (data) => {
-    console.log(data);
+    console.log("FormData:", data);
   };
 
   return (
@@ -26,10 +27,11 @@ function PreviewModal({ show, onClose }) {
         {formJsonNew && formJsonNew.form.children?.length > 0 ? (
           <form onSubmit={handleSubmit(formSubmit)}>
             {formJsonNew.form.children.map((field) => (
-              <DynamicForm
+              <FormRenderer
                 key={field.id}
                 field={field}
                 control={control}
+                register={register}
                 previewMode={show}
               />
             ))}
@@ -37,7 +39,7 @@ function PreviewModal({ show, onClose }) {
               <button
                 type="submit"
                 className="btn btn-primary"
-                // disabled={!isValid}
+                disabled={!isValid}
               >
                 Submit Form
               </button>

@@ -21,12 +21,10 @@ function DynamicTabs({ field, control, previewMode }) {
         if (layout.type === "field-set") {
           return { ...layout, fields: updateNestedFields(layout.fields) };
         }
-        // not working
         if (layout.type === "columns") {
-          console.log("layout", layout, "fields");
           return {
             ...layout,
-            columns: layout.fields.map((column) => ({
+            fields: layout.fields.map((column) => ({
               ...column,
               fields: updateNestedFields(column.fields),
             })),
