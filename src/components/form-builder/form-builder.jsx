@@ -11,6 +11,7 @@ import EditableModal from "./modal/editable-modal";
 import { closeEditModal } from "../../store/slices/form-slice";
 import "./form-builder.css";
 import { fieldInputs, fieldLayouts } from "../../utils/field-list";
+import { DndContext } from "@dnd-kit/core";
 
 const FormBuilder = () => {
   const { control } = useForm();
@@ -33,7 +34,7 @@ const FormBuilder = () => {
   };
 
   return (
-    <DndProvider backend={HTML5Backend}>
+    <DndContext>
       <h1 className="text-center">Form Builder</h1>
       <div className="my-2">
         <button className="btn btn-secondary my-3" onClick={togglePreviewMode}>
@@ -88,7 +89,7 @@ const FormBuilder = () => {
           </div>
         </div>
       </div>
-    </DndProvider>
+    </DndContext>
   );
 };
 

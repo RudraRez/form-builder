@@ -1,31 +1,29 @@
+import { useDraggable } from "@dnd-kit/core";
 import React from "react";
-import { useDrag } from "react-dnd";
 
-const AvailableField = ({ field }) => {
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: "FIELD",
-    item: { ...field },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  }));
+const DraggableField = ({ field }) => {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: field.id, // Unique id for each field
+    data: { field },
+  });
+
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+      }
+    : undefined;
 
   return (
     <div
-      ref={drag}
-      className={`draggable-field ${field.type}`}
-      style={{
-        cursor: "grab",
-        opacity: isDragging ? 0.5 : 1,
-        padding: "8px",
-        border: "1px solid #ddd",
-        margin: "4px",
-        backgroundColor: "#f9f9f9",
-      }}
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      style={style} // Enable smooth dragging
+      className="draggable-field"
     >
       {field.label}
     </div>
   );
 };
 
-export default AvailableField;
+export default DraggableField;
