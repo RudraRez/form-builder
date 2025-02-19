@@ -69,7 +69,7 @@ function FieldSet({ field, control, previewMode }) {
   };
 
   const moveField = (dragIndex, hoverIndex) => {
-    if (!field.fields) return;
+    if (!field.fields || !Array.isArray(field.fields)) return;
 
     const updatedFields = [...field.fields];
     const draggedField = updatedFields.splice(dragIndex, 1)[0];
@@ -159,65 +159,68 @@ function FieldSet({ field, control, previewMode }) {
       </h6>
       {field.fields?.length ? (
         <div>
-          {field.fields.map((child, index) =>
-            previewMode ? (
-              <FormRenderer
-                key={child.id}
-                field={child}
-                control={control}
-                previewMode={previewMode}
-              />
-            ) : (
-              <DragField
-                key={child.id}
-                index={index}
-                id={child.id}
-                type="FIELD"
-                moveField={moveField}
-              >
-                <div className="card p-3 mb-3">
-                  <div
-                    className="position-absolute d-flex justify-content-end p-2"
-                    style={{
-                      top: 0,
-                      right: 0,
-                      backgroundColor: "rgba(0, 0, 0, 0.2)",
-                      borderRadius: "4px",
-                      zIndex: 10,
-                    }}
-                  >
-                    <img
-                      src={bin}
-                      alt="Delete"
-                      className="mx-1"
+          {field.fields &&
+            Array.isArray(field.fields) &&
+            field.fields.map((child, index) =>
+              previewMode ? (
+                <FormRenderer
+                  key={child.id}
+                  field={child}
+                  control={control}
+                  previewMode={previewMode}
+                />
+              ) : (
+                <DragField
+                  key={child.id}
+                  index={index}
+                  id={child.id}
+                  type="FIELD"
+                  moveField={moveField}
+                >
+                  <div className="card p-3 mb-3">
+                    <div
+                      className="position-absolute d-flex justify-content-end p-2"
                       style={{
-                        width: "20px",
-                        height: "20px",
-                        cursor: "pointer",
+                        top: 0,
+                        right: 0,
+                        backgroundColor: "rgba(0, 0, 0, 0.2)",
+                        borderRadius: "4px",
+                        zIndex: 10,
                       }}
-                      onClick={() => handleDeleteNestedField(child.id)}
-                    />
-                    <img
-                      src={editPencil}
-                      alt="Edit"
-                      className="mx-1"
-                      style={{
-                        width: "20px",
-                        height: "20px",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => dispatch(onFieldSelect(child))}
+                    >
+                      <img
+                        src={bin}
+                        alt="Delete"
+                        className="mx-1"
+                        style={{
+                          width: "20px",
+                          height: "20px",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => handleDeleteNestedField(child.id)}
+                      />
+                      <img
+                        src={editPencil}
+                        alt="Edit"
+                        className="mx-1"
+                        style={{
+                          width: "20px",
+                          height: "20px",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => dispatch(onFieldSelect(child))}
+                      />
+                    </div>
+                    <FormRenderer
+                      key={child.id}
+                      field={child}
+                      control={control}
+                      previewMode={previewMode}
                     />
                   </div>
-                  <FormRenderer
-                    field={child}
-                    control={control}
-                    previewMode={previewMode}
-                  />
-                </div>
-              </DragField>
-            )
-          )}
+                </DragField>
+              )
+            )}
         </div>
       ) : (
         <p style={{ textAlign: "center", color: "#888", padding: "16px 0" }}>

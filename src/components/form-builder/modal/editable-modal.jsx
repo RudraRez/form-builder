@@ -52,6 +52,39 @@ function EditableModal({ show, onClose, field }) {
     });
   };
 
+  // this will be tab section
+  const addTab = () => {
+    setEditedField((prev) => ({
+      ...prev,
+      tabs: [
+        ...prev.tabs,
+        {
+          id: `tab-${prev.tabs.length + 1}`,
+          label: `Tab ${prev.tabs.length + 1}`,
+          fields: [],
+        },
+      ],
+    }));
+  };
+
+  const updateTabLabel = (tabId, newLabel) => {
+    setEditedField((prev) => ({
+      ...prev,
+      tabs: prev.tabs.map((tab) =>
+        tab.id === tabId ? { ...tab, label: newLabel } : tab
+      ),
+    }));
+  };
+
+  const removeTab = (tabId) => {
+    if (editedField.tabs.length > 1) {
+      setEditedField((prev) => ({
+        ...prev,
+        tabs: prev.tabs.filter((tab) => tab.id !== tabId),
+      }));
+    }
+  };
+
   const handleSave = () => {
     if (!jsonError) {
       dispatch(updateField(editedField));
@@ -80,16 +113,18 @@ function EditableModal({ show, onClose, field }) {
                 disabled
               />
             </div>
-            <div className="mb-3 col-6">
-              <label className="form-label">Name</label>
-              <input
-                type="text"
-                className="form-control"
-                name="name"
-                value={editedField.name || ""}
-                onChange={handleChange}
-              />
-            </div>
+            {editedField.name !== undefined && (
+              <div className="mb-3 col-6">
+                <label className="form-label">Name</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="name"
+                  value={editedField.name || ""}
+                  onChange={handleChange}
+                />
+              </div>
+            )}
             <div className="mb-3 col-6">
               <label className="form-label">Label</label>
               <input
@@ -100,22 +135,23 @@ function EditableModal({ show, onClose, field }) {
                 onChange={handleChange}
               />
             </div>
-            <div className="mb-3 col-6">
-              <label className="form-label">Type</label>
-              <select
-                className="form-select"
-                name="type"
-                value={editedField.type || "text"}
-                onChange={handleChange}
-              >
-                {dropdownOptions?.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
+            {editedField.name !== undefined && (
+              <div className="mb-3 col-6">
+                <label className="form-label">Type</label>
+                <select
+                  className="form-select"
+                  name="type"
+                  value={editedField.type || "text"}
+                  onChange={handleChange}
+                >
+                  {dropdownOptions?.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             {editedField.placeholder !== undefined && (
               <div className="mb-3 col-6">
                 <label className="form-label">Placeholder</label>
@@ -140,16 +176,48 @@ function EditableModal({ show, onClose, field }) {
                 />
               </div>
             )}
-            <div className="mb-3 mx-3 form-check">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                name="required"
-                checked={editedField.validation?.required || false}
-                onChange={handleChange}
-              />
-              <label className="form-check-label">Required</label>
-            </div>
+            {/* // tabs section */}
+            {editedField.tabs && (
+              <div className="mb-3">
+                <label className="form-label">Tabs</label>
+                {editedField.tabs.map((tab) => (
+                  <div key={tab.id} className="d-flex align-items-center mb-2">
+                    <input
+                      type="text"
+                      className="form-control me-2"
+                      value={tab.label}
+                      onChange={(e) => updateTabLabel(tab.id, e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-danger btn-sm"
+                      onClick={() => removeTab(tab.id)}
+                    >
+                      X
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="btn btn-primary mt-2"
+                  onClick={addTab}
+                >
+                  Add Tab
+                </button>
+              </div>
+            )}
+            {editedField.required !== undefined && (
+              <div className="mb-3 mx-3 form-check">
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  name="required"
+                  checked={editedField.validation?.required || false}
+                  onChange={handleChange}
+                />
+                <label className="form-check-label">Required</label>
+              </div>
+            )}
             {editedField.options !== undefined && (
               <div className="mb-3">
                 <label className="form-label">Options</label>
@@ -165,21 +233,25 @@ function EditableModal({ show, onClose, field }) {
                 </small>
               </div>
             )}
-            <div className="mb-3">
-              <label className="form-label">Validation (JSON)</label>
-              <textarea
-                className="form-control"
-                name="validation"
-                rows="3"
-                value={validationString}
-                onChange={handleChange}
-              />
-              {jsonError && <small className="text-danger">{jsonError}</small>}
-              <small className="text-muted">
-                Edit validation rules in JSON format (e.g.,
-                {' {"required": "This field is required"}'}).
-              </small>
-            </div>
+            {editedField.validation !== undefined && (
+              <div className="mb-3">
+                <label className="form-label">Validation (JSON)</label>
+                <textarea
+                  className="form-control"
+                  name="validation"
+                  rows="3"
+                  value={validationString}
+                  onChange={handleChange}
+                />
+                {jsonError && (
+                  <small className="text-danger">{jsonError}</small>
+                )}
+                <small className="text-muted">
+                  Edit validation rules in JSON format (e.g.,
+                  {' {"required": "This field is required"}'}).
+                </small>
+              </div>
+            )}
             <button
               type="button"
               className="btn btn-primary mt-3"

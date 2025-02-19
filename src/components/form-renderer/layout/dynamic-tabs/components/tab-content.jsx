@@ -5,15 +5,15 @@ import editPencil from "../../../../../assets/svg/edit-pencil.svg";
 import DragField from "../../../../draggable-fields/drag-field";
 import FormRenderer from "../../..";
 import { useDispatch } from "react-redux";
+import { onFieldSelect } from "../../../../../store/slices/form-slice";
 
 function TabContent({
   tab,
   onDrop,
   handleDeleteField,
   control,
-  setFields,
-  onFieldSelect,
   previewMode,
+  moveField,
 }) {
   const dispatch = useDispatch();
 
@@ -46,7 +46,14 @@ function TabContent({
     <div ref={drop} style={{ minHeight: "200px" }}>
       {tab.fields.length > 0 ? (
         tab.fields.map((child) => (
-          <DragField key={child.id} id={child.id} type="TAB_FIELD">
+          <DragField
+            key={child.id}
+            id={child.id}
+            type="FIELD"
+            moveField={(dragIndex, hoverIndex) =>
+              moveField(tab.id, dragIndex, hoverIndex)
+            }
+          >
             <div className="card p-3 mb-3">
               <div
                 className="position-absolute d-flex justify-content-end p-2"
@@ -75,9 +82,7 @@ function TabContent({
               </div>
               <FormRenderer
                 field={child}
-                setFields={setFields}
                 control={control}
-                onFieldSelect={onFieldSelect}
                 previewMode={previewMode}
               />
             </div>

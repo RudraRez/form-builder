@@ -65,25 +65,6 @@ function DynamicTabs({ field, control, previewMode }) {
     updateTabs(newTabs);
   };
 
-  const addTab = () => {
-    if (tabs.length < 4) {
-      updateTabs([
-        ...tabs,
-        {
-          id: `tab-${tabs.length + 1}`,
-          label: `Tab ${tabs.length + 1}`,
-          fields: [],
-        },
-      ]);
-    }
-  };
-
-  const removeTab = (tabId) => {
-    if (tabs.length > 1) {
-      updateTabs(tabs.filter((tab) => tab.id !== tabId));
-    }
-  };
-
   const handleDeleteField = (tabId, fieldId) => {
     const newTabs = tabs.map((tab) =>
       tab.id === tabId
@@ -93,6 +74,27 @@ function DynamicTabs({ field, control, previewMode }) {
           }
         : tab
     );
+
+    updateTabs(newTabs);
+  };
+
+  const moveField = (tabId, dragIndex, hoverIndex) => {
+    const moveItem = (list, fromIndex, toIndex) => {
+      const updatedList = [...list];
+      const [removed] = updatedList.splice(fromIndex, 1);
+      updatedList.splice(toIndex, 0, removed);
+      return updatedList;
+    };
+
+    const newTabs = tabs.map((tab) => {
+      if (tab.id === tabId) {
+        return {
+          ...tab,
+          fields: moveItem(tab.fields, dragIndex, hoverIndex),
+        };
+      }
+      return tab;
+    });
 
     updateTabs(newTabs);
   };
@@ -107,8 +109,8 @@ function DynamicTabs({ field, control, previewMode }) {
               previewMode={previewMode}
               tab={tab}
               onDrop={handleDrop}
-              removeTab={removeTab}
               handleDeleteField={handleDeleteField}
+              moveField={moveField}
             />
           </Tab>
         ))}
